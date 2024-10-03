@@ -1,6 +1,7 @@
 <template>
   <div class="paquetes-container">
     <h1>Paquetes Disponibles</h1>
+    <button v-if="isGerente" @click="redirigirAgregarPaquetes">Agregar Paquete</button>
     <div v-if="paquetes.length">
       <Paquetesitem v-for="paquete in paquetes" :key="paquete.id" :paquete="paquete" />
     </div>
@@ -10,36 +11,38 @@
   </div>
 </template>
 
-<script>
-import { ref, onMounted } from 'vue'
+<script setup>
+import { ref, onMounted, computed } from 'vue'
+import { useStore } from 'vuex'
 import { mostarPaquetes } from '@/Apis/api'
 import Paquetesitem from '@/components/paquetesitem.vue'
+import { useRouter } from 'vue-router'
 
-export default {
-  components: {
-    Paquetesitem
-  },
-  setup() {
-    const paquetes = ref([])
+const store = useStore()
+const router = useRouter()
 
-    const cargarPaquetes = async () => {
-      try {
-        const data = await mostarPaquetes()
-        paquetes.value = data
-      } catch (error) {
-        console.error('Error al cargar los paquetes:', error)
-      }
-    }
+const paquetes = ref([])
+const isGerente = computed(() => {
+  const role = store.getters.userRole
+  console.log('es gerente', role === 'Gerente')
+  return role === 'Gerente'
+})
 
-    onMounted(() => {
-      cargarPaquetes()
-    })
-
-    return {
-      paquetes
-    }
+const cargarPaquetes = async () => {
+  try {
+    const data = await mostarPaquetes()
+    paquetes.value = data
+  } catch (error) {
+    console.error('Error al cargar los paquetes:', error)
   }
 }
+const redirigirAgregarPaquetes = () => {
+  router.push('/agregarPaquetes')
+}
+
+onMounted(() => {
+  cargarPaquetes()
+})
 </script>
 
 <style scoped>

@@ -1,28 +1,27 @@
 <template>
   <div class="servicio-item">
-    <h2>{{ servicio.id }}</h2>
     <h2>{{ servicio.nombre }}</h2>
     <h2>{{ servicio.precio }} MXN</h2>
     <p>{{ servicio.descripcion }}</p>
   </div>
 </template>
-<script>
-export default {
-  props: {
-    servicio: {
-      type: Object,
-      required: true
-    }
+
+<script setup>
+// Definimos la prop `servicio` directamente con `defineProps`
+const props = defineProps({
+  servicio: {
+    type: Object,
+    required: true
   }
-}
+})
 </script>
 
 <style scoped>
 .servicio-item {
-  border: 1px solid #ccc;
-  padding: 10px;
+  border: 1px solid #595b15;
+  padding: 20px;
   margin-bottom: 15px;
-  border-radius: 5px;
+  border-radius: 50px;
   text-align: left;
 }
 

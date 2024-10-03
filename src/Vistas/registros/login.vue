@@ -25,37 +25,52 @@
         </div>
         <button type="submit" class="btn-login">Iniciar Sesión</button>
       </form>
+      <p v-if="errorMessage" class="error-message">{{ errorMessage }}</p>
+      <!-- Mensaje de error -->
+      <p>
+        ¿No tienes una cuenta?
+        <router-link to="/registro">Regístrate aquí</router-link>
+      </p>
     </div>
   </div>
 </template>
 
-<script>
+<script setup>
 import { ref } from 'vue'
-import { crearEntrada } from '@/Apis/api' // Asegúrate de que la ruta sea correcta
+import { useStore } from 'vuex'
+import { useRouter } from 'vue-router'
+import { crearEntrada } from '@/Apis/api'
 
-export default {
-  setup() {
-    const nombre_usuario = ref('')
-    const passw = ref('')
+// Uso de useStore y useRouter
+const store = useStore()
+const router = useRouter()
 
-    const insertar = async () => {
-      console.log('Nombre de usuario:', nombre_usuario.value)
-      console.log('Contraseña:', passw.value)
+// Estados para el nombre de usuario, la contraseña y el mensaje de error
+const nombre_usuario = ref('')
+const passw = ref('')
+const errorMessage = ref('') // Estado para el mensaje de error
 
-      try {
-        const data = { nombre_usuario: nombre_usuario.value, passw: passw.value } // Datos que enviarás
-        const result = await crearEntrada(data) // Llama a la función para crear una entrada
-        console.log('Respuesta de la API:', result)
-      } catch (error) {
-        console.error('Error al iniciar sesión:', error)
-      }
-    }
+// Función para manejar el inicio de sesión
+const insertar = async () => {
+  errorMessage.value = '' // Resetea el mensaje de error al iniciar sesión
+  try {
+    const data = { nombre_usuario: nombre_usuario.value, passw: passw.value }
+    console.log('Enviando datos de inicio de sesión:', data) // Log de los datos a enviar
+    const result = await crearEntrada(data) // Llamada a la API para iniciar sesión
+    console.log('Respuesta de la API:', result) // Log de la respuesta de la API
 
-    return {
-      nombre_usuario,
-      passw,
-      insertar
-    }
+    // Asegúrate de que la API devuelva un token y un rol
+    const token = result.token
+    const role = result.rol // Asegúrate de que el campo sea "rol", no "role"
+
+    // Guardamos en Vuex
+    store.dispatch('login', { token, role })
+
+    // Redirigir al inicio o a otra pantalla
+    router.push('/') // Cambia la ruta según sea necesario
+  } catch (error) {
+    console.error('Error al iniciar sesión:', error)
+    errorMessage.value = 'Usuario y contraseña incorrectos' // Muestra el mensaje de error
   }
 }
 </script>
@@ -137,6 +152,13 @@ h2 {
 
 .btn-login:hover {
   background-color: #005a9e; /* Cambio de color al pasar el cursor */
+}
+
+/* Estilo del mensaje de error */
+.error-message {
+  color: red;
+  font-size: 14px;
+  margin-top: 10px;
 }
 
 /* Animación de aparición */

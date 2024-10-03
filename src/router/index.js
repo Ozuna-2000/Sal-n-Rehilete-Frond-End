@@ -25,6 +25,16 @@ const router = createRouter({
       path: '/servicios',
       name: 'servicios',
       component: () => import('@/Vistas/registros/ClienteAnonimo/serviciosexistentes.vue')
+    },
+    {
+      path: '/agregarservicio',
+      name: 'agregar-servio',
+      component: () => import('@/components/agregarServicio.vue')
+    },
+    {
+      path: '/agregarPaquetes',
+      name: 'agregar',
+      component: () => import('@/components/agregarPaquete.vue')
     }
   ]
 })

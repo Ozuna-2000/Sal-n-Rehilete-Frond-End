@@ -7,21 +7,19 @@
   </div>
 </template>
 
-<script>
-export default {
-  props: {
-    paquete: {
-      type: Object,
-      required: true
-    }
+<script setup>
+const pros = defineProps({
+  paquete: {
+    type: Object,
+    required: true
   }
-}
+})
 </script>
 
 <style scoped>
 .paquete-item {
   border: 1px solid #ccc;
-  padding: 10px;
+  padding: 0px;
   margin-bottom: 15px;
   border-radius: 5px;
   text-align: left;

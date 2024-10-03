@@ -6,7 +6,8 @@
         <ul>
           <li><router-link to="/servicios">Servicios</router-link></li>
           <li><router-link to="/paquetes">Paquetes</router-link></li>
-          <li><router-link to="/login">Acceder</router-link></li>
+          <li v-if="!isAuthenticated"><router-link to="/login">Acceder</router-link></li>
+          <li v-if="isAuthenticated"><button @click="logout">Cerrar Sesión</button></li>
         </ul>
       </nav>
     </header>
@@ -15,43 +16,52 @@
     <main>
       <div class="welcome-message">
         <p>{{ currentMessage }}</p>
+        <p v-if="isAuthenticated">Bienvenido, {{ userRole }}!</p>
+        <p v-else>Por favor, inicia sesión para más funciones.</p>
       </div>
     </main>
   </div>
 </template>
 
-<script>
-import { ref, onMounted } from 'vue'
+<script setup>
+import { ref, onMounted, computed } from 'vue'
+import { useStore } from 'vuex'
 
-export default {
-  setup() {
-    const currentMessage = ref('Bienvenidos a Salón de Eventos Rehilete')
-    const messages = [
-      'Donde tus sueños se hacen realidad',
-      'El mejor lugar para celebrar tus momentos',
-      'Nos encargamos de que todo sea perfecto',
-      'Salón de fiestas Rehilete, donde la magia sucede'
-    ]
+// Uso de Vuex
+const store = useStore()
 
-    const startMessageRotation = () => {
-      let index = 0
-      setInterval(() => {
-        index = (index + 1) % messages.length
-        currentMessage.value = messages[index]
-      }, 5000) // Cambia el mensaje cada 5 segundos
-    }
+// propieda computada
+const isAuthenticated = computed(() => store.getters.isAuthenticated)
+const userRole = computed(() => store.getters.userRole)
 
-    onMounted(() => {
-      startMessageRotation()
-    })
+// Mensajes de bienvenida
+const currentMessage = ref('Bienvenidos a Salón de Eventos Rehilete')
+const messages = [
+  'Donde tus sueños se hacen realidad',
+  'El mejor lugar para celebrar tus momentos',
+  'Nos encargamos de que todo sea perfecto',
+  'Salón de fiestas Rehilete, donde la magia sucede'
+]
 
-    return {
-      currentMessage
-    }
-  }
+// Función para rotar mensajes
+const startMessageRotation = () => {
+  let index = 0
+  setInterval(() => {
+    index = (index + 1) % messages.length
+    currentMessage.value = messages[index]
+  }, 5000) // Cambia el mensaje cada 5 segundos
 }
-</script>
 
+// Función para cerrar sesión
+const logout = () => {
+  store.dispatch('logout') // Asegúrate de tener una acción logout en Vuex
+}
+
+// Iniciar la rotación de mensajes cuando el componente se monte
+onMounted(() => {
+  startMessageRotation()
+})
+</script>
 <style scoped>
 /* Estilo para el contenedor principal */
 * {

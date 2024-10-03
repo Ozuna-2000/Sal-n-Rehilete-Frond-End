@@ -2,8 +2,8 @@ import { createStore } from 'vuex'
 
 export default createStore({
   state: {
-    token: null,
-    role: null
+    token: localStorage.getItem('token') || null, // Cargar el token desde localStorage
+    role: localStorage.getItem('role') || null // Cargar el rol desde localStorage
   },
   mutations: {
     setToken(state, token) {
@@ -22,7 +22,7 @@ export default createStore({
       commit('setToken', token)
       commit('setRole', role)
       localStorage.setItem('token', token) // Guardar el token en localStorage
-      localStorage.setItem('role', role)
+      localStorage.setItem('role', role) // Guardar el rol en localStorage
     },
     logout({ commit }) {
       commit('clearAuth')
@@ -32,6 +32,7 @@ export default createStore({
   },
   getters: {
     isAuthenticated: (state) => !!state.token,
-    userRole: (state) => state.role
+    userRole: (state) => state.role,
+    isGerente: (state) => state.role === 'Gerente' // Computar si el usuario es gerente
   }
 })
