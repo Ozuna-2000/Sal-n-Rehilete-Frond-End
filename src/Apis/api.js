@@ -54,3 +54,12 @@ export const AgregarPaquete = async (data, token) => {
     console.log('error al cargaar el paquete', error.response ? error.response.data : error)
   }
 }
+// Función para obtener los medios de un paquete específico
+export const obtenerMediosPaquete = async (idPaquete, token) => {
+  const response = await axios.get(`https://back.rehilete.mx/api/paquetes/${idPaquete}/medios`, {
+    headers: {
+      Authorization: `Bearer ${token}` // Incluye el token en la cabecera
+    }
+  })
+  return response.data // Asegúrate de que esto devuelva la estructura esperada
+}

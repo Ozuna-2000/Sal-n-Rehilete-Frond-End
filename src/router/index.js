@@ -35,6 +35,12 @@ const router = createRouter({
       path: '/agregarPaquetes',
       name: 'agregar',
       component: () => import('@/components/agregarPaquete.vue')
+    },
+    {
+      path: '/paquete/:paqueteId/medios',
+      name: 'DetallePaquete',
+      component: () => import('@/components/DetallePaquete.vue'),
+      props: true
     }
   ]
 })
