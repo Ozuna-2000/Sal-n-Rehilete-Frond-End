@@ -41,6 +41,12 @@ const router = createRouter({
       name: 'DetallePaquete',
       component: () => import('@/components/DetallePaquete.vue'),
       props: true
+    },
+
+    {
+      path: '/registrate',
+      name: 'agregar-usuario',
+      component: () => import('@/Vistas/Registro.vue')
     }
   ]
 })

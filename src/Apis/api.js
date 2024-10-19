@@ -58,8 +58,19 @@ export const AgregarPaquete = async (data, token) => {
 export const obtenerMediosPaquete = async (idPaquete, token) => {
   const response = await axios.get(`https://back.rehilete.mx/api/paquetes/${idPaquete}/medios`, {
     headers: {
-      Authorization: `Bearer ${token}` // Incluye el token en la cabecera
+      Authorization: `Bearer ${token}`
     }
   })
-  return response.data // Asegúrate de que esto devuelva la estructura esperada
+  return response.data
+}
+
+// Función para registrar un nuevo usuario
+export const registrarUsuarioApi = async (data) => {
+  try {
+    const response = await axios.post('http://127.0.0.1:8000/api/usuarios/registrar', data)
+    return response.data // Devuelve los datos de la respuesta
+  } catch (error) {
+    console.error('Error al registrar el usuario:', error.response ? error.response.data : error)
+    throw error
+  }
 }
