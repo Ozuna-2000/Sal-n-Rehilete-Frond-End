@@ -41,36 +41,39 @@ import { useStore } from 'vuex'
 import { useRouter } from 'vue-router'
 import { crearEntrada } from '@/Apis/api'
 
-// Uso de useStore y useRouter
 const store = useStore()
 const router = useRouter()
 
 // Estados para el nombre de usuario, la contraseña y el mensaje de error
 const nombre_usuario = ref('')
 const passw = ref('')
-const errorMessage = ref('') // Estado para el mensaje de error
+const errorMessage = ref('')
 
-// Función para manejar el inicio de sesión
 const insertar = async () => {
-  errorMessage.value = '' // Resetea el mensaje de error al iniciar sesión
+  errorMessage.value = ''
   try {
     const data = { nombre_usuario: nombre_usuario.value, passw: passw.value }
-    console.log('Enviando datos de inicio de sesión:', data) // Log de los datos a enviar
-    const result = await crearEntrada(data) // Llamada a la API para iniciar sesión
-    console.log('Respuesta de la API:', result) // Log de la respuesta de la API
+    console.log('Enviando datos de inicio de sesión:', data)
+    const result = await crearEntrada(data)
+    console.log('Respuesta de la API:', result)
 
-    // Asegúrate de que la API devuelva un token y un rol
     const token = result.token
-    const role = result.rol // Asegúrate de que el campo sea "rol", no "role"
+    const role = result.rol
 
-    // Guardamos en Vuex
     store.dispatch('login', { token, role })
 
-    // Redirigir al inicio o a otra pantalla
-    router.push('/') // Cambia la ruta según sea necesario
+    if (role === 'Gerente') {
+      router.push('/VistaGerente')
+    } else if (role === 'cliente') {
+      router.push('/')
+    } else if (role === 'empleado') {
+      router.push('/')
+    } else {
+      router.push('/')
+    }
   } catch (error) {
     console.error('Error al iniciar sesión:', error)
-    errorMessage.value = 'Usuario y contraseña incorrectos' // Muestra el mensaje de error
+    errorMessage.value = 'Usuario y contraseña incorrectos'
   }
 }
 </script>

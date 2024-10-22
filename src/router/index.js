@@ -47,6 +47,16 @@ const router = createRouter({
       path: '/registrate',
       name: 'agregar-usuario',
       component: () => import('@/Vistas/Registro.vue')
+    },
+    {
+      path: '/VistaGerente',
+      name: 'Gerente',
+      component: () => import('@/Vistas/Gerente.vue')
+    },
+    {
+      path: '/ListaUsuarios',
+      name: 'listaUsuarios',
+      component: () => import('@/components/Usuarios/ListarUsuarios.vue')
     }
   ]
 })

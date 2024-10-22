@@ -72,13 +72,12 @@ const startMessageRotation = () => {
 
 // Función para cerrar sesión
 const logout = () => {
-  store.dispatch('logout') // Asegúrate de tener una acción logout en Vuex
-}
+  store.dispatch('logout')
 
-// Iniciar la rotación de mensajes cuando el componente se monte
-onMounted(() => {
-  startMessageRotation()
-})
+  onMounted(() => {
+    startMessageRotation()
+  })
+}
 </script>
 
 <style scoped>

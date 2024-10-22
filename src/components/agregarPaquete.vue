@@ -41,7 +41,7 @@ const AgregarPaquete = async () => {
     token = localStorage.getItem('token')
   }
 
-  // Aquí verificamos si el usuario es gerente
+  // En esta parte es donde usundo el storage, vemos si el usuario es gerente
   const isGerente = store.getters.userRole === 'Gerente' // Verifica si el usuario es gerente
 
   const data = {
@@ -50,7 +50,7 @@ const AgregarPaquete = async () => {
     descripcion: descripcion.value,
     precio: precio.value
   }
-  console.log(data) // Asegúrate de que los datos son correctos
+  console.log(data)
 
   try {
     const response = await agregarPaquete(data, token)
