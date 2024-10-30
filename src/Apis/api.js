@@ -1,20 +1,22 @@
 import axios from 'axios'
 import store from '@/store'
 
+const url = 'http://127.0.0.1:8000'
 // Falta indicar poner el aplicasion=>json
 export const crearEntrada = async (data) => {
   try {
-    const response = await axios.post('http://127.0.0.1:8000/api/entrada', data) // Ennviamos los datos para hacer la peticion
+    const response = await axios.post(`${url}/api/entrada`, data) // Ennviamos los datos para hacer la peticion
     return response.data // devolvemos la respuesta de la api
   } catch (error) {
     console.error('Error al crear la entrada:', error)
     throw error // lanza el error en caso de la que api, no responda correctamente
   }
 }
+;``
 
 export const mostarPaquetes = async () => {
   try {
-    const response = await axios.get('http://127.0.0.1:8000/api/paquetes')
+    const response = await axios.get(`${url}/api/paquetes`)
     return response.data
   } catch (error) {
     console.log('error al acceser paquetes')
@@ -22,7 +24,7 @@ export const mostarPaquetes = async () => {
 }
 export const mostrarServicios = async () => {
   try {
-    const response = await axios.get('http://127.0.0.1:8000/api/servicios')
+    const response = await axios.get(`${url}/api/servicios`)
     return response.data
   } catch (error) {
     console.log('error al cargar')
@@ -31,7 +33,7 @@ export const mostrarServicios = async () => {
 
 export const AgregarServicio = async (data, token) => {
   try {
-    const response = await axios.post('http://127.0.0.1:8000/api/servicios/', data, {
+    const response = await axios.post(`${url}/api/servicios/`, data, {
       headers: {
         Authorization: `Bearer ${token}` // en esta parte de includeye el token
       }
@@ -99,5 +101,22 @@ export const obtenerUsuarios = async () => {
     )
     alert(error.response ? error.response.data.errors : 'Error al cargar los datos')
     return [] // Devuelve un array vacío en caso de error
+  }
+}
+export const cerrarSesion = async (token) => {
+  try {
+    const response = await axios.post(
+      `${url}/api/salida`,
+      {},
+      {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      }
+    )
+    return response.data // Devuelve la respuesta de la API si es necesario
+  } catch (error) {
+    console.error('Error al cerrar sesión:', error.response ? error.response.data : error)
+    throw error // Lanza el error en caso de que la API no responda correctamente
   }
 }

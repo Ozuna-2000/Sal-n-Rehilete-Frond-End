@@ -29,7 +29,7 @@
       <!-- Mensaje de error -->
       <p>
         ¿No tienes una cuenta?
-        <router-link to="/registro">Regístrate aquí</router-link>
+        <router-link to="/registrate">Regístrate aquí</router-link>
       </p>
     </div>
   </div>
@@ -63,7 +63,7 @@ const insertar = async () => {
     store.dispatch('login', { token, role })
 
     if (role === 'Gerente') {
-      router.push('/VistaGerente')
+      router.push('/')
     } else if (role === 'cliente') {
       router.push('/')
     } else if (role === 'empleado') {

@@ -1,18 +1,28 @@
 <template>
   <div class="paquete-item">
-    <h2>{{ paquete.id }}</h2>
     <h2>{{ paquete.nombre }}</h2>
     <p>{{ paquete.descripcion }}</p>
     <p>Precio: {{ paquete.precio }} MXN</p>
-    <button @click="verMedios(paquete.id)">Ver Medios</button>
-    <!-- Botón para ver medios -->
+
+    <button @click="mostrarServicios = !mostrarServicios">
+      {{ mostrarServicios ? 'Ocultar Servicios' : 'Ver Servicios' }}
+    </button>
+
+    <!-- Mostrar servicios del paquete -->
+    <div v-if="mostrarServicios" class="servicios-list">
+      <ul v-if="paquete.servicios && paquete.servicios.length">
+        <li v-for="servicio in paquete.servicios" :key="servicio.id">
+          <strong>{{ servicio.nombre }}</strong
+          >: {{ servicio.descripcion }} - ${{ servicio.precio }} MXN
+        </li>
+      </ul>
+      <p v-else>No hay servicios disponibles en este paquete.</p>
+    </div>
   </div>
 </template>
 
 <script setup>
-import { useRouter } from 'vue-router'
-
-const router = useRouter()
+import { ref } from 'vue'
 
 const props = defineProps({
   paquete: {
@@ -21,14 +31,7 @@ const props = defineProps({
   }
 })
 
-const verMedios = (id) => {
-  // Redirige a la ruta de los medios del paquete
-  if (id) {
-    router.push(`/paquete/${id}/medios`)
-  } else {
-    console.error('El paquete no tiene un id válido.')
-  }
-}
+const mostrarServicios = ref(false)
 </script>
 
 <style scoped>
@@ -38,6 +41,12 @@ const verMedios = (id) => {
   margin-bottom: 15px;
   border-radius: 50px;
   text-align: left;
+}
+
+.servicios-list {
+  margin-top: 10px;
+  padding: 10px;
+  border-top: 1px solid #bdc3c7;
 }
 
 h2 {

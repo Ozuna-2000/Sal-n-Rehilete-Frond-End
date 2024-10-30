@@ -7,7 +7,7 @@
           <th>Nombre</th>
           <th>Apellido</th>
           <th>Nombre de Usuario</th>
-          <th>Contraseña</th>
+
           <th>Fecha de Nacimiento</th>
           <th>Email</th>
           <th>Teléfono</th>
@@ -21,7 +21,6 @@
           <td>{{ usuario.nombre }}</td>
           <td>{{ usuario.apellido }}</td>
           <td>{{ usuario.nombre_usuario }}</td>
-          <td>{{ usuario.passw }}</td>
           <td>{{ usuario.fecha_nacimiento }}</td>
           <td>{{ usuario.email }}</td>
           <td>{{ usuario.telefono }}</td>

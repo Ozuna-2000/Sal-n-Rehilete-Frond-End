@@ -3,55 +3,44 @@
     <!-- Barra superior -->
     <div class="navbar">
       <h1>Servicios Disponibles</h1>
-      <button v-if="isGerente" @click="redirigirAGrabarServicio">Agregar Servicio</button>
+      <button v-if="isGerente" @click="redirigirAgregarServicios">Agregar Servicio</button>
     </div>
 
     <div v-if="servicios.length">
-      <Serviciositem v-for="servicio in servicios" :key="servicio.id" :servicio="servicio" />
+      <serviciositem v-for="servicio in servicios" :key="servicio.id" :servicio="servicio" />
     </div>
     <div v-else>
-      <p>No hay servicios disponibles.</p>
+      <p>No hay servicios disponibles en este momento.</p>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from 'vue' // Asegúrate de importar computed
-import { useStore } from 'vuex' // Importamos useStore para acceder a Vuex
-import { mostrarServicios } from '@/Apis/api' // Importamos la API para mostrar los servicios
-import Serviciositem from '@/components/serviciositem.vue' // Importamos el componente de servicios
-import { useRouter } from 'vue-router' // Importamos useRouter
+import { ref, onMounted, computed } from 'vue'
+import { useStore } from 'vuex'
+import { mostrarServicios } from '@/Apis/api'
+import serviciositem from '@/components/serviciositem.vue'
+import { useRouter } from 'vue-router'
 
-// Usamos el store de Vuex
 const store = useStore()
-// Referencia para almacenar la lista de servicios
-const servicios = ref([])
-// Router para redirigir
 const router = useRouter()
 
-// Computed para verificar si el usuario es gerente
-const isGerente = computed(() => {
-  const role = store.getters.userRole
-  console.log('Es gerente:', role === 'Gerente') // Agregamos un console.log para verificar
-  return role === 'Gerente'
-})
+const servicios = ref([])
+const isGerente = computed(() => store.getters.userRole === 'Gerente')
 
-// Función para cargar los servicios desde la API
 const cargarServicios = async () => {
   try {
     const data = await mostrarServicios()
     servicios.value = data
   } catch (error) {
-    console.error('Error al cargar los servicios:', error) // Mejor manejo de errores
+    console.error('Error al cargar los servicios:', error)
   }
 }
 
-// Función para redirigir a la página de agregar servicio
-const redirigirAGrabarServicio = () => {
-  router.push('/agregarservicio') // Redirigir a la página de agregar servicio
+const redirigirAgregarServicios = () => {
+  router.push('/agregarServicios')
 }
 
-// Ejecutamos cargarServicios cuando se monte el componente
 onMounted(() => {
   cargarServicios()
 })
@@ -88,12 +77,11 @@ onMounted(() => {
   background-color: #2980b9; /* Color más oscuro al pasar el mouse */
 }
 
-/* Contenedor de servicios */
+/* Contenedor de paquetes */
 .servicios-container {
   padding: 20px;
   text-align: center;
-  width: 600%; /* Ajusta el ancho según sea necesario */
-
+  width: 200%; /* Ajusta el ancho según sea necesario */
   max-width: 1200px; /* Limitar el ancho máximo */
   margin: 0 auto; /* Centrar el contenedor */
   background-color: #ecf0f1; /* Color de fondo suave */
@@ -101,13 +89,13 @@ onMounted(() => {
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); /* Sombra sutil */
 }
 
-/* Estilo para cada servicio */
+/* Estilo para cada paquete */
 .servicio-item {
-  background-color: white; /* Fondo blanco para los elementos de servicio */
+  background-color: white; /* Fondo blanco para los elementos de paquete */
   border: 1px solid #bdc3c7; /* Borde sutil */
   border-radius: 10px; /* Bordes redondeados */
   padding: 15px;
-  margin-bottom: 20px; /* Espacio entre los servicios */
+  margin-bottom: 20px; /* Espacio entre los paquetes */
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Sombra */
   transition: transform 0.2s; /* Efecto de transición */
 }

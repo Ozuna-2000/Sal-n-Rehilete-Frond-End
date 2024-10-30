@@ -1,4 +1,5 @@
 import { createStore } from 'vuex'
+import { cerrarSesion } from './Apis/api'
 
 export default createStore({
   state: {
@@ -18,17 +19,22 @@ export default createStore({
     }
   },
   actions: {
-    login({ commit }, { token, role }) {
+    async login({ commit }, { token, role }) {
       commit('setToken', token)
       commit('setRole', role)
       localStorage.setItem('token', token)
       localStorage.setItem('role', role)
     },
-    logout({ commit }) {
-      commit('clearAuth')
-
-      localStorage.removeItem('token')
-      localStorage.removeItem('role')
+    async logout({ commit }) {
+      const token = localStorage.getItem('token')
+      try {
+        await cerrarSesion(token)
+        commit('clearAuth')
+        localStorage.removeItem('token')
+        localStorage.removeItem('role')
+      } catch (error) {
+        console.error('Error al cerrar sesión:', error)
+      }
     }
   },
   getters: {
