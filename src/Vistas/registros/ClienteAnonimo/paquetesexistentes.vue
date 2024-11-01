@@ -18,7 +18,7 @@
 <script setup>
 import { ref, onMounted, computed } from 'vue'
 import { useStore } from 'vuex'
-import { mostarPaquetes } from '@/Apis/api'
+import { mostrarPaquetes } from '@/Apis/api'
 import Paquetesitem from '@/components/paquetesitem.vue'
 import { useRouter } from 'vue-router'
 
@@ -34,8 +34,9 @@ const isGerente = computed(() => {
 
 const cargarPaquetes = async () => {
   try {
-    const data = await mostarPaquetes()
+    const data = await mostrarPaquetes()
     paquetes.value = data
+    console.log('Paquetes cargados:', paquetes.value)
   } catch (error) {
     console.error('Error al cargar los paquetes:', error)
   }

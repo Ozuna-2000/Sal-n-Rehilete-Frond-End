@@ -12,14 +12,24 @@ export const crearEntrada = async (data) => {
     throw error // lanza el error en caso de la que api, no responda correctamente
   }
 }
-;``
-
-export const mostarPaquetes = async () => {
+export const mostrarPaquetes = async () => {
   try {
-    const response = await axios.get(`${url}/api/paquetes`)
+    const token = store.state.token
+    console.log('Token:', token)
+
+    const headers = {}
+
+    // Si hay un token, lo añadimos a los headers
+    if (token) {
+      headers.Authorization = `Bearer ${token}`
+    }
+
+    // Llama a la misma ruta y permite que la API maneje la lógica de permisos
+    const response = await axios.get(`${url}/api/paquetes`, { headers })
+
     return response.data
   } catch (error) {
-    console.log('error al acceser paquetes')
+    console.log('Error al acceder a paquetes:', error)
   }
 }
 export const mostrarServicios = async () => {
@@ -118,5 +128,30 @@ export const cerrarSesion = async (token) => {
   } catch (error) {
     console.error('Error al cerrar sesión:', error.response ? error.response.data : error)
     throw error // Lanza el error en caso de que la API no responda correctamente
+  }
+}
+export const obtenerPaquetePorId = async (paqueteId) => {
+  try {
+    const response = await axios.get(`${url}/api/paquetes/${paqueteId}`)
+    return response.data
+  } catch (error) {
+    console.log('Error al acceder al paquete específico:', error)
+    throw error
+  }
+}
+
+export const ActivarPaqueteId = async (paqueteId) => {
+  try {
+    // Obtén el token del estado de Vuex
+    const token = store.state.token
+
+    const response = await axios.put(`${url}/api/paquetes/activar/${paqueteId}`, null, {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    })
+    return response.data
+  } catch (error) {
+    console.error('Error al activar el paquete:', error)
   }
 }

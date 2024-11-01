@@ -30,11 +30,7 @@ const routes = [
     name: 'agregar-servicio',
     component: () => import('@/components/agregarServicio.vue')
   },
-  {
-    path: '/agregarPaquetes',
-    name: 'agregar',
-    component: () => import('@/components/agregarPaquete.vue')
-  },
+
   {
     path: '/paquete/:paqueteId/medios',
     name: 'DetallePaquete',
@@ -53,9 +49,9 @@ const routes = [
     meta: { requiresGerente: true }, // Meta para indicar que requiere rol de gerente
     children: [
       {
-        path: 'paquetes',
+        path: 'paquetes-Gere',
         name: 'paquetes-gerente',
-        component: () => import('@/Vistas/registros/ClienteAnonimo/paquetesexistentes.vue')
+        component: () => import('@/components/Gerente/PaquetesGerente.vue')
       },
       {
         path: 'servicios',
@@ -66,6 +62,17 @@ const routes = [
         path: 'ListaUsuarios',
         name: 'listaUsuarios',
         component: () => import('@/components/Usuarios/ListarUsuarios.vue')
+      },
+      {
+        path: 'paquetes/:paqueteId',
+        name: 'paquetesitem',
+        component: () => import('@/components/paquetesitem.vue'), // Ajusta la ruta según la ubicación del componente
+        props: true // Permite pasar el paqueteId como propiedad
+      },
+      {
+        path: 'agregar-paquete',
+        name: 'agregar',
+        component: () => import('@/components/Gerente/agregarPaquete.vue')
       }
     ]
   }

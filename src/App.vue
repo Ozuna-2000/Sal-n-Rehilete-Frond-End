@@ -1,6 +1,6 @@
 <template>
-  <div class="main-container">
-    <!-- Barra de navegación superior -->
+  <div id="app">
+    <!-- Barra de navegación que estará disponible en todas las vistas -->
     <header class="navbar">
       <nav>
         <ul>
@@ -21,206 +21,71 @@
 
     <!-- Contenido principal -->
     <main>
-      <transition name="fade">
-        <div class="welcome-message">
-          <p>{{ currentMessage }}</p>
-          <p v-if="isAuthenticated">Bienvenido, {{ userRole }}!</p>
-          <p v-else>Por favor, inicia sesión para más funciones.</p>
-        </div>
-      </transition>
-
       <router-view></router-view>
-
-      <!-- Sección Conócenos -->
-      <section class="conocenos" id="conocenos" v-if="!hiddenRoutes.includes($route.path)">
-        <h2>Conócenos</h2>
-        <p>Esta es la sección donde te contamos sobre nuestro salón de eventos</p>
-      </section>
-
-      <!-- Sección Contáctanos -->
-      <section class="contactanos" id="contactanos" v-if="!hiddenRoutes.includes($route.path)">
-        <h2>Contáctanos</h2>
-        <p>
-          Para contactarnos, puedes llamarnos al +52 123 456 7890 o enviarnos un correo a
-          contacto@rehilete.mx.
-        </p>
-      </section>
+      <!-- Aquí se renderizarán los componentes según la ruta -->
     </main>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from 'vue'
+import { computed } from 'vue'
 import { useStore } from 'vuex'
-import { useRouter } from 'vue-router'
-
-const hiddenRoutes = ref([
-  '/paquetes',
-  '/registrate',
-  '/login',
-  '/VistaGerente/paquetes',
-  '/VistaGerente/servicios'
-])
+import { useRouter } from 'vue-router' // Importa el router
 
 const store = useStore()
-const router = useRouter()
+const router = useRouter() // Crea una instancia del router
 
 const isAuthenticated = computed(() => store.getters.isAuthenticated)
 const userRole = computed(() => store.getters.userRole)
 const isGerente = computed(() => userRole.value === 'Gerente')
 
-// Mensajes de bienvenida
-const currentMessage = ref('Bienvenidos a Salón de Eventos Rehilete')
-const messages = [
-  'Donde tus sueños se hacen realidad',
-  'El mejor lugar para celebrar tus momentos',
-  'Nos encargamos de que todo sea perfecto',
-  'Salón de fiestas Rehilete, donde la magia sucede'
-]
-
-const startMessageRotation = () => {
-  let index = 0
-  setInterval(() => {
-    index = (index + 1) % messages.length
-    currentMessage.value = messages[index]
-  }, 5000) // Cambia el mensaje cada 5 segundos
-}
-
 // Función para cerrar sesión
 const logout = () => {
-  store.dispatch('logout').then(() => {
-    router.push('/') // Redirigir a la página de inicio
-  })
+  store.dispatch('logout')
+  router.push('/') // Redirige a la página de inicio
 }
-
-onMounted(() => {
-  startMessageRotation()
-})
 </script>
 
 <style scoped>
-/* Estilo para el contenedor principal */
-* {
-  box-sizing: border-box;
-}
-
-.main-container {
-  display: flex;
-  flex-direction: column;
-  height: 100vh;
-  width: 100vw;
-  background-image: url('@/imagenes/imagen-rehilete.jpg'); /* Cambia esta ruta por la de tu imagen */
-  background-size: cover; /* Hace que la imagen cubra todo el fondo */
-  background-position: center; /* Centra la imagen */
-  background-attachment: fixed; /* Hace que la imagen sea estática al hacer scroll */
-  overflow-x: hidden;
-  position: fixed;
-  top: 0;
-  left: 0;
-}
-
-/* Estilo para la barra de navegación */
+/* Estilos generales para la barra de navegación */
 .navbar {
-  height: 60px;
-  background-color: rgba(51, 51, 51, 0.8); /* Color de fondo semitransparente */
-  display: flex;
-  align-items: center;
+  background-color: #333; /* Color de fondo de la barra */
+  overflow: hidden; /* Evita que el contenido se desborde */
+  width: 100%; /* Ocupa el ancho completo de la pantalla */
+  position: fixed; /* Fija la barra en la parte superior */
+  top: 0; /* Se alinea al borde superior */
+  left: 0; /* Se alinea al borde izquierdo */
+  z-index: 1000; /* Asegura que esté por encima de otros elementos */
 }
 
 .navbar nav ul {
-  display: flex;
-  justify-content: space-around;
-  list-style-type: none;
-  padding: 0;
-  margin: 0;
-  width: 100%;
+  list-style-type: none; /* Elimina los puntos de la lista */
+  margin: 0; /* Elimina el margen por defecto */
+  padding: 0; /* Elimina el padding por defecto */
+  display: flex; /* Muestra los elementos de la lista en línea */
+  justify-content: space-around; /* Espaciado uniforme entre elementos */
 }
 
 .navbar nav ul li {
-  color: white;
-  font-size: 18px;
-  margin: 0 20px;
+  float: left; /* Alinea los elementos a la izquierda */
 }
 
-.navbar nav ul li a {
-  color: white;
-  text-decoration: none;
-  transition:
-    transform 0.3s ease,
-    color 0.3s ease;
+.navbar nav ul li a,
+.navbar nav ul li button {
+  display: block; /* Hace que el enlace sea un bloque */
+  color: white; /* Color del texto */
+  text-align: center; /* Centra el texto dentro del enlace */
+  padding: 14px 16px; /* Espaciado dentro del enlace */
+  text-decoration: none; /* Elimina el subrayado del enlace */
 }
 
-.navbar nav ul li a:hover {
-  text-decoration: underline;
-  transform: scale(1.1); /* Ampliar ligeramente al pasar el ratón */
-  color: #ff69b4; /* Cambiar color a rosado */
+.navbar nav ul li a:hover,
+.navbar nav ul li button:hover {
+  background-color: #575757; /* Color de fondo al pasar el mouse */
 }
 
-/* Contenido principal */
+/* Agrega un margen superior al contenido principal para que no quede oculto detrás de la barra */
 main {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-}
-
-/* Mensaje de bienvenida */
-.welcome-message {
-  text-align: center;
-  font-size: 30px;
-  font-style: italic;
-  animation: fadeIn 2s ease-in-out;
-  background-color: rgba(255, 255, 255, 0); /* Fondo blanco opaco */
-  padding: 20px;
-  border-radius: 10px;
-}
-
-/* Secciones de "Conócenos" y "Contáctanos" con animación en hover */
-section {
-  padding: 50px;
-  text-align: center;
-  background-color: rgba(255, 105, 180, 0.8); /* Fondo rosado semitransparente */
-  border-radius: 10px;
-  margin: 20px 0; /* Espaciado vertical entre secciones */
-  width: 80%; /* Ancho del contenedor de las secciones */
-  transition:
-    transform 0.3s ease,
-    box-shadow 0.3s ease;
-}
-
-section:hover {
-  transform: scale(1.05); /* Aumenta el tamaño en hover */
-  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3); /* Agrega sombra */
-}
-
-section h2 {
-  font-size: 28px;
-  margin-bottom: 10px;
-}
-
-section p {
-  font-size: 20px;
-}
-
-/* Animación para el mensaje */
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-
-/* Animación de desvanecimiento para transiciones */
-.fade-enter-active,
-.fade-leave-active {
-  transition: opacity 0.5s;
-}
-.fade-enter,
-.fade-leave-to {
-  /* .fade-leave-active en versiones anteriores de Vue */
-  opacity: 0;
+  margin-top: 60px; /* Ajusta este valor según la altura de tu barra de navegación */
 }
 </style>

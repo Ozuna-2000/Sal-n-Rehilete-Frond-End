@@ -1,5 +1,5 @@
 <template>
-  <div class="paquete-item">
+  <div v-if="paquete" class="paquete-item">
     <h2>{{ paquete.nombre }}</h2>
     <p>{{ paquete.descripcion }}</p>
     <p>Precio: {{ paquete.precio }} MXN</p>
@@ -19,19 +19,43 @@
       <p v-else>No hay servicios disponibles en este paquete.</p>
     </div>
   </div>
+  <p v-else>Cargando paquete...</p>
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
+import { useRoute } from 'vue-router'
+import { obtenerPaquetePorId } from '@/Apis/api' // Ajusta la ruta de acuerdo a tu estructura de archivos
 
+const route = useRoute()
+const paqueteId = route.params.paqueteId
+const mostrarServicios = ref(false)
+
+// Definición de props
 const props = defineProps({
   paquete: {
     type: Object,
-    required: true
+    default: null // Cambiamos a null si el paquete no se pasa como prop
   }
 })
 
-const mostrarServicios = ref(false)
+const paquete = ref(props.paquete) // Inicializar paquete con el valor de props
+
+// Cargar el paquete desde la API solo si no se pasa como prop
+const cargarPaquete = async () => {
+  try {
+    paquete.value = await obtenerPaquetePorId(paqueteId)
+  } catch (error) {
+    console.error('Error al cargar el paquete:', error)
+  }
+}
+
+// Ejecutar la carga del paquete cuando el componente se monta
+onMounted(() => {
+  if (!props.paquete) {
+    cargarPaquete()
+  }
+})
 </script>
 
 <style scoped>
