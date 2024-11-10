@@ -54,17 +54,17 @@ export const AgregarServicio = async (data, token) => {
     throw error // Lanza el error en caso de que este mal
   }
 }
-
 export const AgregarPaquete = async (data, token) => {
   try {
-    const response = await axios.post('http://127.0.0.1:8000/api/paquetes/', data, {
+    const response = await axios.post('http://127.0.0.1:8000/api/paquetes', data, {
       headers: {
         Authorization: `Bearer ${token}`
       }
     })
+    console.log('Paquete agregado con éxito:', response.data)
     return response.data
   } catch (error) {
-    console.log('error al cargaar el paquete', error.response ? error.response.data : error)
+    console.log('Error al cargar el paquete:', error.response ? error.response.data : error)
   }
 }
 // Petion de prueba para ver si obtiene las imagenes
@@ -153,5 +153,20 @@ export const ActivarPaqueteId = async (paqueteId) => {
     return response.data
   } catch (error) {
     console.error('Error al activar el paquete:', error)
+  }
+}
+
+export const EliminarPaqueteId = async (paqueteId) => {
+  try {
+    const token = store.state.token // Asegúrate de obtener el token correctamente
+    const response = await axios.delete(`${url}/api/paquetes/${paqueteId}`, {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    })
+    return response.data
+  } catch (error) {
+    console.error('Error al eliminar el paquete:', error)
+    throw error // Esto permite que el error se maneje en el componente
   }
 }

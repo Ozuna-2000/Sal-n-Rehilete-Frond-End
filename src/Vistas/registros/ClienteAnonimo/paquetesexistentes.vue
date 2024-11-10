@@ -19,7 +19,7 @@
 import { ref, onMounted, computed } from 'vue'
 import { useStore } from 'vuex'
 import { mostrarPaquetes } from '@/Apis/api'
-import Paquetesitem from '@/components/paquetesitem.vue'
+import Paquetesitem from '@/components/PaquetesItem.vue'
 import { useRouter } from 'vue-router'
 
 const store = useStore()

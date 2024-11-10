@@ -1,8 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import { useStore } from 'vuex'
-import login from '@/Vistas/registros/login.vue'
-import Inicio from '@/Vistas/registros/Inicio/Inicio.vue'
-import paquetesexistentes from '@/Vistas/registros/ClienteAnonimo/paquetesexistentes.vue'
+
+import Inicio from '@/Vistas/registros/Inicio/InicioPrincipal.vue'
 
 const routes = [
   {
@@ -66,13 +65,14 @@ const routes = [
       {
         path: 'paquetes/:paqueteId',
         name: 'paquetesitem',
-        component: () => import('@/components/paquetesitem.vue'), // Ajusta la ruta según la ubicación del componente
+        component: () => import('@/components/PaquetesItem.vue'), // Ajusta la ruta según la ubicación del componente
         props: true // Permite pasar el paqueteId como propiedad
       },
+
       {
         path: 'agregar-paquete',
-        name: 'agregar',
-        component: () => import('@/components/Gerente/agregarPaquete.vue')
+        name: 'agregar-paquete-gerente',
+        component: () => import('@/components/AgregarServicioPaquete/viewPaqueteServicio.vue')
       }
     ]
   }

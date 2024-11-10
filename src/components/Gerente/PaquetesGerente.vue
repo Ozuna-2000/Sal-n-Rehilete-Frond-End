@@ -23,7 +23,7 @@
           <td>
             <button @click="verPaquete(paquete)">Ver</button>
             <button @click="editarPaquete(paquete)">Editar</button>
-            <button @click="eliminarPaquete(paquete.id)">Eliminar</button>
+            <button @click="eliminarPaquete(paquete)">Eliminar</button>
             <button @click="cambiarEstadoPaquete(paquete)">
               {{ paquete.activo === 1 ? 'Desactivar' : 'Activar' }}
             </button>
@@ -36,7 +36,7 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
-import { mostrarPaquetes, ActivarPaqueteId } from '@/Apis/api'
+import { mostrarPaquetes, ActivarPaqueteId, EliminarPaqueteId } from '@/Apis/api'
 import { useRouter } from 'vue-router'
 
 const paquetes = ref([])
@@ -76,9 +76,17 @@ const editarPaquete = (paquete) => {
   console.log(`Editar paquete con ID: ${paquete.id}`)
 }
 
-const eliminarPaquete = (id) => {
-  console.log(`Eliminar paquete con ID: ${id}`)
-  paquetes.value = paquetes.value.filter((paquete) => paquete.id !== id)
+const eliminarPaquete = async (paquete) => {
+  try {
+    await EliminarPaqueteId(paquete.id) // Llamada para eliminar en la API
+    console.log('El paquete ha sido eliminado correctamente')
+
+    // Actualiza la lista de paquetes en la interfaz eliminando el paquete correspondiente
+    paquetes.value = paquetes.value.filter((p) => p.id !== paquete.id)
+  } catch (error) {
+    console.error('Error al eliminar el paquete:', error)
+    alert('Hubo un error al intentar eliminar el paquete.') // Muestra una alerta si hay un error
+  }
 }
 </script>
 
