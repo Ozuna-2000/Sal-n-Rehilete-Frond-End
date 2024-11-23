@@ -170,3 +170,78 @@ export const EliminarPaqueteId = async (paqueteId) => {
     throw error // Esto permite que el error se maneje en el componente
   }
 }
+export const subirImagen = async (imagenes, idPaquete, token) => {
+  const formData = new FormData()
+  formData.append('id', idPaquete)
+
+  imagenes.forEach((imagen) => {
+    formData.append('imagenes[]', imagen.file)
+  })
+
+  try {
+    const response = await axios.post(`${url}/api/paquetes/${idPaquete}/medios`, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+        Authorization: `Bearer ${token}` // Aquí se añade el token
+      }
+    })
+    return response.data
+  } catch (error) {
+    console.error('Error al subir las imágenes:', error)
+    throw error
+  }
+}
+export const crearUsuario = async (usuarios) => {
+  try {
+    const token = store.state.token // Obtener el token desde Vuex
+    const rol = store.state.role // Obtener el rol desde Vuex
+
+    console.log('Rol del usuario:', rol) // Verifica el rol (si es necesario)
+
+    // Realizar la solicitud a la API para crear el usuario
+    const respuesta = await axios.post(`${url}/api/usuarios/`, usuarios, {
+      headers: {
+        Authorization: `Bearer ${token}` // Agregar el token al header
+      }
+    })
+
+    return respuesta.data // Devolvemos los datos de la respuesta
+  } catch (error) {
+    console.error('Error al crear el usuario:', error.response?.data || error.message)
+    throw error // Lanza el error para manejarlo en donde se llame la función
+  }
+}
+// Asegúrate de tener la URL correcta
+
+export const EliminarUsuario = async (usuarioId) => {
+  // Verificar que el usuarioId esté presente y sea válido
+  if (!usuarioId) {
+    console.error('Error: usuarioId no proporcionado.')
+    return
+  }
+
+  try {
+    const token = store.state.token // Asegúrate de que el token esté en el estado correcto de Vuex
+    if (!token) {
+      console.error('Error: Token no encontrado.')
+      return
+    }
+
+    // Realizar la petición DELETE
+    const response = await axios.delete(`${url}/api/usuarios/${usuarioId}`, {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    })
+
+    // Si la eliminación es exitosa, puedes manejar los datos que devuelve la API
+    return response.data
+  } catch (error) {
+    // Mejor manejo de errores, por ejemplo, mostrar el mensaje de error si está disponible
+    console.error(
+      'Error al eliminar el usuario:',
+      error.response ? error.response.data : error.message
+    )
+    throw error // Para manejar el error en el componente
+  }
+}

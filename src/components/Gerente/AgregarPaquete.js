@@ -1,5 +1,5 @@
 import { ref } from 'vue'
-import { AgregarPaquete, ActivarPaqueteId } from '@/Apis/api'
+import { AgregarPaquete, ActivarPaqueteId, subirImagen } from '@/Apis/api'
 
 export function useAgregarPaquete(token) {
   const nombre = ref('')
@@ -7,56 +7,70 @@ export function useAgregarPaquete(token) {
   const descripcion = ref('')
   const mensaje = ref('')
   const mensajeClase = ref('')
-  const activo = ref('')
-  const paqueteAgregado = ref(false) // Estado de si el paquete fue agregado
+  const paqueteAgregado = ref(false)
   const paqueteId = ref('')
+  const imagenes = ref([]) // Asegúrate de que las imágenes sean un arreglo
 
-  // Función para enviar el paquete
+  // Función para enviar los datos del paquete
   const enviarPaquete = async () => {
     const data = {
       nombre: nombre.value,
       precio: precio.value,
       descripcion: descripcion.value,
-      activo: activo.value
+      activo: false // El paquete es inactivo por defecto
     }
 
     try {
+      // Agregar el paquete usando la API
       const response = await AgregarPaquete(data, token)
-      console.log('Respuesta de agregar paquete:', response) // Verifica la respuesta de la API
       if (response && response.id) {
         paqueteId.value = response.id
         mensaje.value = 'Paquete agregado con éxito'
         mensajeClase.value = 'success'
-        paqueteAgregado.value = true // Mostrar los botones de activación
+        paqueteAgregado.value = true
+
+        if (imagenes.value.length > 0) {
+          // Subir las imágenes asociadas al paquete
+          await subirImagenPaquete(imagenes.value, paqueteId.value)
+        }
       } else {
-        mensaje.value = 'Error: no se obtuvo el ID del paquete recién creado.'
+        mensaje.value = 'Error al agregar el paquete'
         mensajeClase.value = 'error'
       }
     } catch (error) {
-      mensaje.value = 'Error al agregar el paquete. Inténtalo de nuevo.'
+      mensaje.value = 'Error en la conexión con la API'
       mensajeClase.value = 'error'
     }
   }
 
-  // Función para activar el paquete
+  const subirImagenPaquete = async (imagenes, idPaquete) => {
+    try {
+      await subirImagen(imagenes, idPaquete, token)
+      mensaje.value = 'Imágenes subidas con éxito'
+      mensajeClase.value = 'success'
+    } catch (error) {
+      mensaje.value = 'Error al subir las imágenes'
+      mensajeClase.value = 'error'
+    }
+  }
+
+  // Función para activar el paquete después de ser agregado
   const activarPaquete = async () => {
-    console.log('Activando paquete con ID:', paqueteId.value) // Verifica el paqueteId
     try {
       await ActivarPaqueteId(paqueteId.value)
       mensaje.value = 'Paquete activado con éxito'
       mensajeClase.value = 'success'
-      paqueteAgregado.value = false // Ocultar los botones y volver al formulario
+      paqueteAgregado.value = false
     } catch (error) {
-      mensaje.value = 'Error al activar el paquete.'
+      mensaje.value = 'Error al activar el paquete'
       mensajeClase.value = 'error'
     }
   }
 
-  // Función para cancelar la activación
+  // Función para cancelar la activación del paquete
   const cancelarPaquete = () => {
-    mensaje.value = 'El paquete fue agregado como inactivo'
-    mensajeClase.value = 'info'
-    paqueteAgregado.value = false // Ocultar los botones y volver al formulario
+    paqueteAgregado.value = false
+    mensaje.value = ''
   }
 
   return {
@@ -67,6 +81,7 @@ export function useAgregarPaquete(token) {
     mensajeClase,
     paqueteAgregado,
     paqueteId,
+    imagenes,
     enviarPaquete,
     activarPaquete,
     cancelarPaquete

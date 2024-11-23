@@ -12,7 +12,7 @@
           @click.prevent="selectOption('agregar')"
           :class="{ selected: isAgregaActive }"
         >
-          <button>Agregar pendejo</button>
+          <button>Agregar Paquete</button>
         </RouterLink>
         <!-- Puedes agregar más opciones aquí -->
       </div>

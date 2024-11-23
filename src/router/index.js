@@ -17,7 +17,7 @@ const routes = [
   {
     path: '/paquetes',
     name: 'paquetes-clientes',
-    component: () => import('@/Vistas/registros/ClienteAnonimo/paquetesexistentes.vue')
+    component: () => import('@/Vistas/registros/ClienteAnonimo/PaquetesExistentes.vue')
   },
   {
     path: '/servicios',
