@@ -6,7 +6,7 @@
       <thead>
         <tr>
           <th>Nombre</th>
-          <th>Descripción</th>
+
           <th>Precio (MXN)</th>
           <th>Estado</th>
           <th>Acciones</th>
@@ -15,7 +15,7 @@
       <tbody>
         <tr v-for="paquete in paquetes" :key="paquete.id">
           <td>{{ paquete.nombre }}</td>
-          <td class="descripcion">{{ paquete.descripcion }}</td>
+
           <td>{{ paquete.precio }}</td>
           <td :class="{ activo: paquete.activo === 1, inactivo: paquete.activo === 0 }">
             {{ paquete.activo === 1 ? 'Activo' : 'Inactivo' }}

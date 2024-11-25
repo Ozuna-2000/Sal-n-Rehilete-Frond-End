@@ -245,3 +245,21 @@ export const EliminarUsuario = async (usuarioId) => {
     throw error // Para manejar el error en el componente
   }
 }
+
+export const deleteImage = async (paqueteId, medioId) => {
+  const token = store.state.token // Obtiene el token de Vuex
+
+  try {
+    const response = await axios.delete(`${url}/api/paquetes/${paqueteId}/medios/${medioId}`, {
+      headers: {
+        Authorization: `Bearer ${token}` // Enviar token en los encabezados
+      }
+    })
+    console.log('Imagen eliminada con éxito:', response.data)
+    return true // Retorna true si la eliminación fue exitosa
+  } catch (error) {
+    console.error('Error al eliminar la imagen:', error)
+    alert('No se pudo eliminar la imagen.')
+    return false // Retorna false si ocurrió un error
+  }
+}

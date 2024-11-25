@@ -58,7 +58,7 @@ const paqueteId = route.params.paqueteId
 const cargarPaquete = async () => {
   try {
     if (paqueteId) {
-      console.log(`Cargando paquete con ID: ${paqueteId}`) // Debug
+      console.log(`Cargando paquete con ID: ${paqueteId}`)
       paquete.value = await obtenerPaquetePorId(paqueteId)
     } else {
       console.error('ID del paquete no disponible en la ruta')
