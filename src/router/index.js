@@ -75,6 +75,11 @@ const routes = [
         component: () => import('@/components/AgregarServicioPaquete/viewPaqueteServicio.vue')
       }
     ]
+  },
+  {
+    path: '/agregar-paquete/:paqueteId?',
+    name: 'agregar-paquete',
+    component: () => import('@/components/AgregarServicioPaquete/viewPaqueteServicio.vue')
   }
 ]
 

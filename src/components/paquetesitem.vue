@@ -29,13 +29,16 @@
 
     <!-- Mostrar el componente DetallePaquete solo si mostrarMedios es verdadero -->
     <DetallePaquete v-if="mostrarMedios" :paquete="paquete" />
+
+    <!-- Botón de editar -->
+    <button v-if="puedeEditar" @click="redirigirEdicion" class="btn-editar">Editar</button>
   </div>
   <p v-else>Cargando paquete...</p>
 </template>
 
 <script setup>
 import { ref, onMounted } from 'vue'
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import { useStore } from 'vuex' // Importamos el store
 import { obtenerPaquetePorId } from '@/Apis/api'
 import DetallePaquete from '@/components/DetallePaquete.vue' // Importar el componente DetallePaquete
@@ -50,8 +53,10 @@ const props = defineProps({
 const paquete = ref(props.paquete) // Inicializar con la prop del paquete
 const mostrarServicios = ref(false) // Mostrar/ocultar servicios
 const mostrarMedios = ref(false) // Mostrar/ocultar medios (DetallePaquete)
+const puedeEditar = ref(true) // Determinar si el paquete se puede editar (puedes poner tu lógica aquí)
 
 const route = useRoute()
+const router = useRouter()
 const paqueteId = route.params.paqueteId
 
 // Si el paquete no se pasa como prop, cargarlo desde la API
@@ -74,6 +79,18 @@ onMounted(() => {
     cargarPaquete() // Cargar desde la API solo si no se pasa el paquete como prop
   }
 })
+
+// Función para redirigir a la página de edición
+const redirigirEdicion = () => {
+  if (paquete.value && paquete.value.id) {
+    // Verifica si el paquete tiene ID
+    console.log('El ID del paquete a editar es:', paquete.value.id) // Imprime el ID
+    console.log('Datos completos del paquete:', paquete.value) // Imprime todos los datos del paquete
+    router.push({ name: 'agregar-paquete', params: { paqueteId: paquete.value.id } })
+  } else {
+    console.error('El ID del paquete no está disponible')
+  }
+}
 </script>
 
 <style scoped>
@@ -121,5 +138,20 @@ onMounted(() => {
 
 .btn-ver-medios:hover {
   background-color: #2980b9;
+}
+
+/* Estilo para el botón de editar */
+.btn-editar {
+  margin-top: 15px;
+  padding: 10px 20px;
+  background-color: #f39c12;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.btn-editar:hover {
+  background-color: #e67e22;
 }
 </style>

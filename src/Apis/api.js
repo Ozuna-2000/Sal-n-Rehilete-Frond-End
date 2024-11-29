@@ -131,6 +131,7 @@ export const cerrarSesion = async (token) => {
   }
 }
 export const obtenerPaquetePorId = async (paqueteId) => {
+  console.log('Paquete ID recibido:', paqueteId) // Verifica el valor de paqueteId
   try {
     const response = await axios.get(`${url}/api/paquetes/${paqueteId}`)
     return response.data
@@ -171,10 +172,23 @@ export const EliminarPaqueteId = async (paqueteId) => {
   }
 }
 export const subirImagen = async (imagenes, idPaquete, token) => {
+  if (!imagenes || imagenes.length === 0) {
+    throw new Error('Debe seleccionar al menos una imagen.')
+  }
+
   const formData = new FormData()
   formData.append('id', idPaquete)
+  formData.append('_method', 'PUT') // Se agrega _method=PUT para indicar que es una actualización
 
+  // Validar tipos de archivo antes de agregar
   imagenes.forEach((imagen) => {
+    if (
+      !['image/jpeg', 'image/png', 'image/jpg', 'image/webp', 'image/avif'].includes(
+        imagen.file.type
+      )
+    ) {
+      throw new Error('Solo se permiten imágenes en formato JPG, PNG, WEBP, o AVIF.')
+    }
     formData.append('imagenes[]', imagen.file)
   })
 
@@ -182,15 +196,24 @@ export const subirImagen = async (imagenes, idPaquete, token) => {
     const response = await axios.post(`${url}/api/paquetes/${idPaquete}/medios`, formData, {
       headers: {
         'Content-Type': 'multipart/form-data',
-        Authorization: `Bearer ${token}` // Aquí se añade el token
+        Authorization: `Bearer ${token}`
       }
     })
-    return response.data
+
+    if (response.data && response.data.success) {
+      return response.data
+    } else {
+      throw new Error('Error en la respuesta del servidor: ' + JSON.stringify(response.data))
+    }
   } catch (error) {
-    console.error('Error al subir las imágenes:', error)
+    console.error(
+      'Error al subir las imágenes:',
+      error.response ? error.response.data : error.message
+    )
     throw error
   }
 }
+
 export const crearUsuario = async (usuarios) => {
   try {
     const token = store.state.token // Obtener el token desde Vuex
@@ -261,5 +284,34 @@ export const deleteImage = async (paqueteId, medioId) => {
     console.error('Error al eliminar la imagen:', error)
     alert('No se pudo eliminar la imagen.')
     return false // Retorna false si ocurrió un error
+  }
+}
+
+export const actualizarPaquete = async (idPaquete, data, token) => {
+  try {
+    const formData = new FormData()
+
+    // Agregar los datos del paquete
+    formData.append('nombre', data.nombre)
+    formData.append('precio', data.precio)
+    formData.append('descripcion', data.descripcion)
+    formData.append('activo', data.activo)
+
+    // Se indica que es una actualización usando _method
+    formData.append('_method', 'PUT')
+
+    // Enviar la solicitud POST con el Content-Type adecuado
+    const response = await axios.post(`${url}/api/paquetes/${idPaquete}`, formData, {
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded', // Aquí especificamos el tipo de contenido
+        Authorization: `Bearer ${token}`
+      }
+    })
+
+    console.log('Paquete actualizado:', response.data)
+    return response.data
+  } catch (error) {
+    console.error('Error al actualizar el paquete:', error.response ? error.response.data : error)
+    throw error // Lanza el error si hay un problema con la solicitud
   }
 }

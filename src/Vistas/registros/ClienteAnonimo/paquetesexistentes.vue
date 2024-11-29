@@ -43,7 +43,7 @@ const cargarPaquetes = async () => {
 }
 
 const redirigirAgregarPaquetes = () => {
-  router.push('/')
+  router.push('/agregar-paquete')
 }
 
 onMounted(() => {

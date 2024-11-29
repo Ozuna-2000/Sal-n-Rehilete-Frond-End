@@ -81,39 +81,58 @@
 <script setup>
 import { useAgregarPaquete } from '../Gerente/AgregarPaquete'
 import store from '@/store'
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
+import { obtenerPaquetePorId } from '@/Apis/api' // Importa la función
 
 // Obtener el token del store
 const token = store.state.token
 
 // Usar la lógica compartida de AgregarPaquete
-const {
-  nombre,
-  precio,
-  descripcion,
-  mensaje,
-  mensajeClase,
-  paqueteAgregado,
-  paqueteId,
+const { mensaje, mensajeClase, paqueteAgregado, enviarPaquete, activarPaquete, cancelarPaquete } =
+  useAgregarPaquete(token)
 
-  enviarPaquete,
-  activarPaquete,
-  cancelarPaquete
-} = useAgregarPaquete(token)
+const nombre = ref('')
+const precio = ref('')
+const descripcion = ref('')
 const imagenes = ref([])
+
+// Obtener el id del paquete desde los parámetros de la ruta
+const paqueteId = store.state.paqueteId // Asegúrate de pasar el paqueteId correctamente
+
+// Llamar a la función para cargar los datos del paquete al montar el componente
+onMounted(async () => {
+  try {
+    // Obtén los datos del paquete desde la API
+    const paqueteData = await obtenerPaquetePorId(paqueteId)
+
+    // Asigna los datos al formulario
+    nombre.value = paqueteData.nombre
+    precio.value = paqueteData.precio
+    descripcion.value = paqueteData.descripcion
+  } catch (error) {
+    console.error('Error al obtener el paquete:', error)
+    mensaje.value = 'No se pudo cargar el paquete.'
+    mensajeClase.value = 'error'
+  }
+})
+
+// Función para manejar imágenes seleccionadas
 const onImageSelected = (event) => {
   const files = event.target.files
-  imagenes.value = [] // Limpiar imágenes previas
+  // Limpiar imágenes previas de forma reactiva
+  imagenes.value = []
 
   Array.from(files).forEach((file) => {
     const allowedTypes = ['image/jpeg', 'image/png', 'image/jpg', 'image/webp', 'image/avif']
 
-    // Verificar si el archivo es válido
     if (allowedTypes.includes(file.type)) {
       const reader = new FileReader()
       reader.onload = (e) => {
         // Añadir la imagen al array de imágenes con la URL leída
         imagenes.value.push({ file, url: e.target.result })
+
+        // Verificar el contenido de las imágenes en consola
+        console.log('Imagen seleccionada:', imagenes.value)
       }
       reader.onerror = () => {
         mensaje.value = 'Hubo un problema al leer el archivo.'
@@ -127,9 +146,12 @@ const onImageSelected = (event) => {
   })
 }
 
-// Manejar imágenes arrastradas y soltadas
+// Función para manejar imágenes arrastradas y soltadas
 const onDrop = (event) => {
   const files = event.dataTransfer.files
+  // Limpiar imágenes previas de forma reactiva
+  imagenes.value = []
+
   Array.from(files).forEach((file) => {
     const allowedTypes = ['image/jpeg', 'image/png', 'image/jpg', 'image/webp', 'image/avif']
 
@@ -139,6 +161,9 @@ const onDrop = (event) => {
       reader.onload = (e) => {
         // Añadir la imagen al array de imágenes con la URL leída
         imagenes.value.push({ file, url: e.target.result })
+
+        // Verificar el contenido de las imágenes en consola
+        console.log('Imagen arrastrada y soltada:', imagenes.value)
       }
       reader.onerror = () => {
         mensaje.value = 'Hubo un problema al leer el archivo.'
@@ -152,10 +177,6 @@ const onDrop = (event) => {
   })
 }
 </script>
-
-<style scoped>
-/* (Los estilos permanecen iguales) */
-</style>
 
 <style scoped>
 /* Contenedor principal del formulario */

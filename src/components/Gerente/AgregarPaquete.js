@@ -1,5 +1,5 @@
 import { ref } from 'vue'
-import { AgregarPaquete, ActivarPaqueteId, subirImagen } from '@/Apis/api'
+import { AgregarPaquete, ActivarPaqueteId, subirImagen, actualizarPaquete } from '@/Apis/api'
 
 export function useAgregarPaquete(token) {
   const nombre = ref('')
@@ -10,6 +10,7 @@ export function useAgregarPaquete(token) {
   const paqueteAgregado = ref(false)
   const paqueteId = ref('')
   const imagenes = ref([]) // Asegúrate de que las imágenes sean un arreglo
+  const esEdicion = ref(false) // Nueva variable para saber si estamos en modo edición
 
   // Función para enviar los datos del paquete
   const enviarPaquete = async () => {
@@ -21,20 +22,38 @@ export function useAgregarPaquete(token) {
     }
 
     try {
-      // Agregar el paquete usando la API
-      const response = await AgregarPaquete(data, token)
+      let response
+      if (esEdicion.value) {
+        // Si estamos en modo edición, llamamos a la función de actualizarPaquete
+        response = await actualizarPaquete(paqueteId.value, data, token)
+      } else {
+        // Agregar el paquete usando la API
+        response = await AgregarPaquete(data, token)
+      }
+
       if (response && response.id) {
+        // Asignamos el id del paquete
         paqueteId.value = response.id
-        mensaje.value = 'Paquete agregado con éxito'
+        console.log('Paquete procesado con éxito, ID:', paqueteId.value) // Verificar el ID
+
+        mensaje.value = esEdicion.value
+          ? 'Paquete actualizado con éxito'
+          : 'Paquete agregado con éxito'
         mensajeClase.value = 'success'
         paqueteAgregado.value = true
 
+        // Verificar si hay imágenes antes de intentar subirlas
+        console.log('Imágenes seleccionadas:', imagenes.value) // Verificar el arreglo de imágenes
+
         if (imagenes.value.length > 0) {
           // Subir las imágenes asociadas al paquete
+          console.log('Se procederá a subir las imágenes...') // Confirmar que se procederá a subir imágenes
           await subirImagenPaquete(imagenes.value, paqueteId.value)
+        } else {
+          console.log('No se han seleccionado imágenes para subir.') // Si no hay imágenes
         }
       } else {
-        mensaje.value = 'Error al agregar el paquete'
+        mensaje.value = 'Error al procesar el paquete'
         mensajeClase.value = 'error'
       }
     } catch (error) {
@@ -45,6 +64,11 @@ export function useAgregarPaquete(token) {
 
   const subirImagenPaquete = async (imagenes, idPaquete) => {
     try {
+      // Verificar qué datos se están enviando
+      console.log('Imágenes que se enviarán:', imagenes) // Verificar qué imágenes se están enviando
+      console.log('ID del paquete al subir imágenes:', idPaquete) // Verificar el ID antes de enviar imágenes
+
+      // Subir imágenes usando la API
       await subirImagen(imagenes, idPaquete, token)
       mensaje.value = 'Imágenes subidas con éxito'
       mensajeClase.value = 'success'
@@ -73,6 +97,14 @@ export function useAgregarPaquete(token) {
     mensaje.value = ''
   }
 
+  // Función para activar el modo de edición y cargar los datos del paquete
+  const iniciarEdicion = (id) => {
+    paqueteId.value = id
+    esEdicion.value = true
+    // Aquí cargaríamos los datos del paquete si fuera necesario
+    // Por ejemplo, llamando a la API para obtener el paquete y llenando los campos
+  }
+
   return {
     nombre,
     precio,
@@ -84,6 +116,7 @@ export function useAgregarPaquete(token) {
     imagenes,
     enviarPaquete,
     activarPaquete,
-    cancelarPaquete
+    cancelarPaquete,
+    iniciarEdicion
   }
 }
