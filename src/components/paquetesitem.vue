@@ -1,6 +1,36 @@
 <template>
   <div v-if="paquete" class="paquete-item">
-    <h2>{{ paquete.nombre }}</h2>
+    <div v-if="editando">
+      <h2><input type="text" v-model="paquete.nombre"  name="" id="paqueteNombre">  </h2>
+    <p>
+      <textarea v-model="paquete.descripcion" name="" cols="80" rows="6" id="paqueteDescripcion"></textarea>
+      </p>
+    <p>Precio: <input type="number" v-model="paquete.precio"  name="" id="paquetePrecio"> MXN</p>
+
+    <!-- Botón para mostrar/ocultar servicios -->
+    <button @click="mostrarServicios = !mostrarServicios">
+      {{ mostrarServicios ? 'Ocultar Servicios' : 'Ver Servicios' }}
+    </button>
+
+    <!-- Mostrar servicios del paquete -->
+    <div v-if="mostrarServicios" class="servicios-list">
+      <ul v-if="paquete.servicios && paquete.servicios.length">
+        <li v-for="servicio in paquete.servicios" :key="servicio.id">
+          <strong>{{ servicio.nombre }}</strong> : {{ servicio.descripcion }} - ${{
+            servicio.precio
+          }}
+          MXN
+        </li>
+      </ul>
+      <p v-else>No hay servicios disponibles en este paquete.</p>
+    </div>
+      <button v-if="puedeEditar" @click="guardarPaquete(paquete.id)" class="btn-editar">Guardar</button>
+
+    </div>
+
+    <div v-else>
+
+      <h2>{{ paquete.nombre }}</h2>
     <p>{{ paquete.descripcion }}</p>
     <p>Precio: {{ paquete.precio }} MXN</p>
 
@@ -22,6 +52,11 @@
       <p v-else>No hay servicios disponibles en este paquete.</p>
     </div>
 
+      <button v-if="puedeEditar" @click="editarPaquete" class="btn-editar">Editar</button>
+
+    </div>
+    
+
     <!-- Botón para ver/ocultar medios (DetallePaquete) -->
     <button @click="mostrarMedios = !mostrarMedios">
       {{ mostrarMedios ? 'Ocultar Medios' : 'Ver Medios' }}
@@ -31,7 +66,6 @@
     <DetallePaquete v-if="mostrarMedios" :paquete="paquete" />
 
     <!-- Botón de editar -->
-    <button v-if="puedeEditar" @click="redirigirEdicion" class="btn-editar">Editar</button>
   </div>
   <p v-else>Cargando paquete...</p>
 </template>
@@ -42,6 +76,7 @@ import { useRoute, useRouter } from 'vue-router'
 import { useStore } from 'vuex' // Importamos el store
 import { obtenerPaquetePorId } from '@/Apis/api'
 import DetallePaquete from '@/components/DetallePaquete.vue' // Importar el componente DetallePaquete
+const editando = ref(false)
 
 const props = defineProps({
   paquete: {
@@ -79,6 +114,16 @@ onMounted(() => {
     cargarPaquete() // Cargar desde la API solo si no se pasa el paquete como prop
   }
 })
+
+const editarPaquete = () =>{
+  console.log("empieza a editar")
+  editando.value = true;
+}
+const guardarPaquete = (paqueteId) => {
+  const paqueteNombre = document.getElementById("paqueteNombre").value;
+  console.log("Termina de editar el " + paqueteId + "que se llama: " + paqueteNombre );
+  editando.value = false;
+};
 
 // Función para redirigir a la página de edición
 const redirigirEdicion = () => {

@@ -3,10 +3,24 @@
     <!-- Barra superior -->
     <div class="navbar">
       <h1>Paquetes Disponibles</h1>
-      <button v-if="isGerente" @click="redirigirAgregarPaquetes">Agregar Paquete</button>
     </div>
 
-    <div v-if="paquetes.length">
+
+  <div v-if="isGerente"  class="paquete-item">
+    <h2><label for='nombre'>nombre</label></h2>
+    <input type='text' name='nombre' id='nombre'><br>
+    <h2><label for='descripcion'>descripcion</label></h2>
+    <textarea name="" cols="50"  id=""></textarea>
+    <br>
+    <h2><label for='precio'>precio</label></h2>
+    
+    <input type='text' name='precio' id='precio'><br>
+    <!-- Botón de editar -->
+    <button @click="redirigirAgregarPaquetes">Agregar Paquete</button>
+  </div>
+
+
+     <div v-if="paquetes.length">
       <Paquetesitem v-for="paquete in paquetes" :key="paquete.id" :paquete="paquete" />
     </div>
     <div v-else>
@@ -130,4 +144,13 @@ button {
 button:hover {
   background-color: #27ae60; /* Color más oscuro al pasar el mouse */
 }
+
+.paquete-item {
+  border: 1px solid #595b15;
+  padding: 20px;
+  margin-bottom: 15px;
+  border-radius: 50px;
+  text-align: left;
+}
+
 </style>

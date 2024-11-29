@@ -303,7 +303,6 @@ export const actualizarPaquete = async (idPaquete, data, token) => {
     // Enviar la solicitud POST con el Content-Type adecuado
     const response = await axios.post(`${url}/api/paquetes/${idPaquete}`, formData, {
       headers: {
-        'Content-Type': 'application/x-www-form-urlencoded', // Aquí especificamos el tipo de contenido
         Authorization: `Bearer ${token}`
       }
     })
