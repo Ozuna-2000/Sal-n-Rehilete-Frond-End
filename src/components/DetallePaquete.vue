@@ -3,12 +3,20 @@
     <h2>Imágenes del Paquete {{ paquete.nombre }}</h2>
     <div v-if="medios.length">
       <div v-for="(medio, index) in medios" :key="medio.id" class="image-item">
-        <img :src="getImageUrl(medio)" alt="Imagen del paquete" />
+        <img :src="getImageUrl(medio)" alt="Imagen del paquete"  width="80" height="80"  />
+        
         <!-- Botón de eliminar imagen -->
         <button @click="confirmDeleteImage(index)" class="delete-icon" aria-label="Eliminar imagen">
           <i class="fas fa-times"></i>
         </button>
       </div>
+
+      <label>
+        Subir Imagen(es)
+        <input type="file" name="" id="" @click="subirImagen(paquete.id)">
+      </label>
+
+
     </div>
     <div v-else>
       <p>No hay imágenes disponibles para este paquete.</p>
@@ -35,6 +43,10 @@ const getImageUrl = (medio) => {
   const baseUrl = 'http://127.0.0.1:8000/api/paquetes' // Base de la URL para las imágenes
   return `${baseUrl}/${props.paquete.id}/medios/${medio.id}`
 }
+
+const subirImagen = (paqueteId) => {
+  console.log("Subir la imagen" );
+};
 
 const cargarMedios = async () => {
   const idPaquete = props.paquete.id
@@ -88,7 +100,7 @@ onMounted(() => {
 }
 
 .delete-icon {
-  position: absolute;
+  position: absolute ;
   top: 5px;
   right: 5px;
   background: rgba(0, 0, 0, 0.7); /* Fondo oscuro para mejorar visibilidad */
