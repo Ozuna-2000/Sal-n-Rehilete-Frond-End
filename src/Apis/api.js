@@ -1,7 +1,8 @@
 import axios from 'axios'
 import store from '@/store'
 
-const url = 'http://127.0.0.1:8000'
+const url = import.meta.env.VITE_API_URL;
+
 // Falta indicar poner el aplicasion=>json
 export const crearEntrada = async (data) => {
   try {
@@ -56,7 +57,7 @@ export const AgregarServicio = async (data, token) => {
 }
 export const AgregarPaquete = async (data, token) => {
   try {
-    const response = await axios.post('http://127.0.0.1:8000/api/paquetes', data, {
+    const response = await axios.post(`${url}/api/paquetes`, data, {
       headers: {
         Authorization: `Bearer ${token}`
       }
@@ -67,9 +68,9 @@ export const AgregarPaquete = async (data, token) => {
     console.log('Error al cargar el paquete:', error.response ? error.response.data : error)
   }
 }
-// Petion de prueba para ver si obtiene las imagenes
+// Petion de prueba para ver si obtiene las imagenes 
 export const obtenerMediosPaquete = async (idPaquete, token) => {
-  const response = await axios.get(`http://127.0.0.1:8000/api/paquetes/${idPaquete}/medios`, {
+  const response = await axios.get(`${url}/api/paquetes/${idPaquete}/medios`, {
     headers: {
       Authorization: `Bearer ${token}`
     }
@@ -78,9 +79,10 @@ export const obtenerMediosPaquete = async (idPaquete, token) => {
 }
 
 //Peticion de la api para el registro de un nuevo usuario " es auntoregistro no require token"
+// 
 export const registrarUsuarioApi = async (data) => {
   try {
-    const response = await axios.post('http://127.0.0.1:8000/api/usuarios/registrar', data)
+    const response = await axios.post(`${url}/api/usuarios/registrar`, data)
     return response.data
   } catch (error) {
     console.error('Error al registrar el usuario:', error.response ? error.response.data : error)
@@ -97,7 +99,7 @@ export const obtenerUsuarios = async () => {
       throw new Error('No se encontró un token de autenticación')
     }
 
-    const response = await axios.get('http://127.0.0.1:8000/api/usuarios', {
+    const response = await axios.get(`${url}/api/usuarios`, {
       headers: {
         Authorization: `Bearer ${token}`
       }

@@ -40,7 +40,8 @@ const props = defineProps({
 const medios = ref([])
 
 const getImageUrl = (medio) => {
-  const baseUrl = 'http://127.0.0.1:8000/api/paquetes' // Base de la URL para las imágenes
+  const url = import.meta.env.VITE_API_URL;
+  const baseUrl = `${url}/api/paquetes` // Base de la URL para las imágenes
   return `${baseUrl}/${props.paquete.id}/medios/${medio.id}`
 }
 
