@@ -17,7 +17,7 @@ const routes = [
   {
     path: '/paquetes',
     name: 'paquetes-clientes',
-    component: () => import('@/Vistas/registros/ClienteAnonimo/PaquetesExistentes.vue')
+    component: () => import('@/Vistas/registros/ClienteAnonimo/paquetesexistentes.vue')
   },
   {
     path: '/servicios',
@@ -65,7 +65,7 @@ const routes = [
       {
         path: 'paquetes/:paqueteId',
         name: 'paquetesitem',
-        component: () => import('@/components/PaquetesItem.vue'), // Ajusta la ruta según la ubicación del componente
+        component: () => import('@/components/paquetesitem.vue'), // Ajusta la ruta según la ubicación del componente
         props: true // Permite pasar el paqueteId como propiedad
       },
 
