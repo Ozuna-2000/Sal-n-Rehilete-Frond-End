@@ -2,6 +2,7 @@
   <div id="app">
     <!-- Barra de navegación que estará disponible en todas las vistas -->
     <header class="navbar">
+      <!-- Aqui puedes tener un componente que se llame the-nav-bar creo que debes usar kebab-case -->
       <nav>
         <ul>
           <li><router-link to="/">Inicio</router-link></li>
