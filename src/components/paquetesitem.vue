@@ -1,3 +1,5 @@
+<!--//*el nombre deberia ser PaquetesItem o paquetes-item -->
+
 <template>
   <div v-if="paquete" class="paquete-item">
     <div v-if="editando">

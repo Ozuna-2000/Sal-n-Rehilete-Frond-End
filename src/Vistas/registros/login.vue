@@ -1,3 +1,5 @@
+<!--//este componente deberia ser TheLogin o the-login -->
+
 <template>
   <div class="login-container">
     <div class="form-wrapper">
@@ -62,6 +64,8 @@ const insertar = async () => {
 
     store.dispatch('login', { token, role })
 
+
+ //para que el if, si todos mandan a /   
     if (role === 'Gerente') {
       router.push('/')
     } else if (role === 'cliente') {

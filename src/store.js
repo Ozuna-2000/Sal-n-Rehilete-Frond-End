@@ -52,15 +52,15 @@ export default createStore({
   },
   getters: {
     // Verificar si el usuario está autenticado
-    isAuthenticated: (state) => !!state.token, //OZUNA ME PUEDES EXPLICAR LA DOBLE NEGACION
+    isAuthenticated: (state) => !!state.token, //* ME PUEDES EXPLICAR LA DOBLE NEGACION
 
     // Obtener el rol del usuario
-    userRole: (state) => state.role, //ES MEJOR HACER store.state.role que store.getters.userRole puesto que no tienes logica aqui
+    userRole: (state) => state.role, //*ES MEJOR HACER store.state.role que store.getters.userRole puesto que no tienes logica aqui
 
     // Verificar si el rol es 'Gerente'
     isGerente: (state) => state.role === 'Gerente',
 
     // Obtener el token
-    token: (state) => state.token //lo mismo de la logica, en el anterior tienes "logica incluida"
+    token: (state) => state.token //*lo mismo de la logica, en el anterior tienes "logica incluida"
   }
 })

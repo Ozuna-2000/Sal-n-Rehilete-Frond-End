@@ -82,7 +82,7 @@
 import { useAgregarPaquete } from '../Gerente/AgregarPaquete'
 import store from '@/store'
 import { ref, onMounted } from 'vue'
-import { obtenerPaquetePorId } from '@/Apis/api' // Importa la función
+import { obtenerPaquetePorId } from '@/Apis/api' // Importa la función //* Cuidado con el uso de mayúsculas, el archivo api podria ser index, lo que estas creando son helpers
 
 // Obtener el token del store
 const token = store.state.token

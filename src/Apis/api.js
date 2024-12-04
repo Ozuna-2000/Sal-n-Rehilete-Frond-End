@@ -7,8 +7,10 @@ const url = import.meta.env.VITE_API_URL;
 export const crearEntrada = async (data) => {
   try {
     const response = await axios.post(`${url}/api/entrada`, data) // Ennviamos los datos para hacer la peticion
-    return response.data // devolvemos la respuesta de la api
-  } catch (error) {
+    return response.data // devolvemos la respuesta de la api //jogs: aqui debes revolver segun el numero de error
+  } catch (error) { //un 401 no es error
+    alert("error tal.... por la razon que da el API" )
+    
     console.error('Error al crear la entrada:', error)
     throw error // lanza el error en caso de la que api, no responda correctamente
   }
