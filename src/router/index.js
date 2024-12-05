@@ -22,7 +22,7 @@ const routes = [
   {
     path: '/servicios',
     name: 'servicios',
-    component: () => import('@/Vistas/registros/ClienteAnonimo/serviciosexistentes.vue')
+    component: () => import('@/Vistas/registros/ClienteAnonimo/ServiciosExistentes.vue')
   },
   {
     path: '/agregarservicio',
