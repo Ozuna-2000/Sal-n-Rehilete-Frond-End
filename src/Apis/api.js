@@ -1,7 +1,7 @@
 import axios from 'axios'
 import store from '@/store'
 
-const url = 'http://127.0.0.1:8000'
+const url = 'https://back.rehilete.mx'
 // Falta indicar poner el aplicasion=>json
 export const crearEntrada = async (data) => {
   try {
