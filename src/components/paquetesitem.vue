@@ -1,61 +1,80 @@
 <template>
   <div v-if="paquete" class="paquete-item">
+    <!-- Sección de edición de paquete -->
     <div v-if="editando">
-      <h2><input type="text" v-model="paquete.nombre"  name="" id="paqueteNombre">  </h2>
-    <p>
-      <textarea v-model="paquete.descripcion" name="" cols="80" rows="6" id="paqueteDescripcion"></textarea>
+      <h2>
+        <input type="text" v-model="paquete.nombre" name="paqueteNombre" id="paqueteNombre" />
+      </h2>
+      <p>
+        <textarea
+          v-model="paquete.descripcion"
+          name="paqueteDescripcion"
+          cols="80"
+          rows="6"
+          id="paqueteDescripcion"
+        ></textarea>
       </p>
-    <p>Precio: <input type="number" v-model="paquete.precio"  name="" id="paquetePrecio"> MXN</p>
+      <p>
+        Precio:
+        <input type="number" v-model="paquete.precio" name="paquetePrecio" id="paquetePrecio" /> MXN
+      </p>
 
-    <!-- Botón para mostrar/ocultar servicios -->
-    <button @click="mostrarServicios = !mostrarServicios">
-      {{ mostrarServicios ? 'Ocultar Servicios' : 'Ver Servicios' }}
-    </button>
+      <button @click="mostrarServicios = !mostrarServicios">
+        {{ mostrarServicios ? 'Ocultar Servicios' : 'Ver Servicios' }}
+      </button>
 
-    <!-- Mostrar servicios del paquete -->
-    <div v-if="mostrarServicios" class="servicios-list">
-      <ul v-if="paquete.servicios && paquete.servicios.length">
-        <li v-for="servicio in paquete.servicios" :key="servicio.id">
-          <strong>{{ servicio.nombre }}</strong> : {{ servicio.descripcion }} - ${{
-            servicio.precio
-          }}
-          MXN
-        </li>
-      </ul>
-      <p v-else>No hay servicios disponibles en este paquete.</p>
+      <div v-if="mostrarServicios" class="servicios-list">
+        <ul v-if="paquete.servicios && paquete.servicios.length">
+          <li v-for="servicio in paquete.servicios" :key="servicio.id">
+            <strong>{{ servicio.nombre }}</strong> : {{ servicio.descripcion }} - ${{
+              servicio.precio
+            }}
+            MXN
+          </li>
+        </ul>
+        <p v-else>No hay servicios disponibles en este paquete.</p>
+      </div>
+
+      <button v-if="puedeEditar" @click="guardarPaquete(paquete.id)" class="btn-editar">
+        Guardar
+      </button>
+
+      <button v-if="puedeEditar" @click="eliminarPaquete(paquete.id)" class="btn-eliminar">
+        Eliminar
+      </button>
     </div>
-      <button v-if="puedeEditar" @click="guardarPaquete(paquete.id)" class="btn-editar">Guardar</button>
 
-    </div>
-
+    <!-- Sección de visualización de paquete -->
     <div v-else>
-
       <h2>{{ paquete.nombre }}</h2>
-    <p>{{ paquete.descripcion }}</p>
-    <p>Precio: {{ paquete.precio }} MXN</p>
+      <p>{{ paquete.descripcion }}</p>
+      <p>Precio: {{ paquete.precio }} MXN</p>
+      <p>id: {{ paquete.id }}</p>
 
-    <!-- Botón para mostrar/ocultar servicios -->
-    <button @click="mostrarServicios = !mostrarServicios">
-      {{ mostrarServicios ? 'Ocultar Servicios' : 'Ver Servicios' }}
-    </button>
+      <button @click="mostrarServicios = !mostrarServicios">
+        {{ mostrarServicios ? 'Ocultar Servicios' : 'Ver Servicios' }}
+      </button>
 
-    <!-- Mostrar servicios del paquete -->
-    <div v-if="mostrarServicios" class="servicios-list">
-      <ul v-if="paquete.servicios && paquete.servicios.length">
-        <li v-for="servicio in paquete.servicios" :key="servicio.id">
-          <strong>{{ servicio.nombre }}</strong> : {{ servicio.descripcion }} - ${{
-            servicio.precio
-          }}
-          MXN
-        </li>
-      </ul>
-      <p v-else>No hay servicios disponibles en este paquete.</p>
-    </div>
+      <div v-if="mostrarServicios" class="servicios-list">
+        <ul v-if="paquete.servicios && paquete.servicios.length">
+          <li v-for="servicio in paquete.servicios" :key="servicio.id">
+            <strong>{{ servicio.nombre }}</strong> : {{ servicio.descripcion }} - ${{
+              servicio.precio
+            }}
+            MXN
+          </li>
+        </ul>
+        <p v-else>No hay servicios disponibles en este paquete.</p>
+      </div>
 
       <button v-if="puedeEditar" @click="editarPaquete" class="btn-editar">Editar</button>
 
+      <button v-if="puedeEditar" @click="eliminarPaquete(paquete.id)" class="btn-eliminar">
+        Eliminar
+      </button>
     </div>
-    
+
+    <!-- Integrar AccionesPaquetes aquí -->
 
     <!-- Botón para ver/ocultar medios (DetallePaquete) -->
     <button @click="mostrarMedios = !mostrarMedios">
@@ -64,8 +83,6 @@
 
     <!-- Mostrar el componente DetallePaquete solo si mostrarMedios es verdadero -->
     <DetallePaquete v-if="mostrarMedios" :paquete="paquete" />
-
-    <!-- Botón de editar -->
   </div>
   <p v-else>Cargando paquete...</p>
 </template>
@@ -74,10 +91,14 @@
 import { ref, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useStore } from 'vuex' // Importamos el store
-import { obtenerPaquetePorId } from '@/Apis/api'
+import { obtenerPaquetePorId, actualizarPaquete } from '@/Apis/api'
 import DetallePaquete from '@/components/DetallePaquete.vue' // Importar el componente DetallePaquete
-const editando = ref(false)
+import AccionesPaquetes from './Gerente/AccionesPaquetes.vue'
+import { EliminarPaqueteId } from '@/Apis/api'
 
+const store = useStore()
+
+const editando = ref(false)
 const props = defineProps({
   paquete: {
     type: Object,
@@ -94,12 +115,13 @@ const route = useRoute()
 const router = useRouter()
 const paqueteId = route.params.paqueteId
 
-// Si el paquete no se pasa como prop, cargarlo desde la API
+// Función para cargar el paquete desde la API
 const cargarPaquete = async () => {
   try {
     if (paqueteId) {
       console.log(`Cargando paquete con ID: ${paqueteId}`)
       paquete.value = await obtenerPaquetePorId(paqueteId)
+      console.log('Paquete cargado:', paquete.value)
     } else {
       console.error('ID del paquete no disponible en la ruta')
     }
@@ -108,32 +130,53 @@ const cargarPaquete = async () => {
   }
 }
 
-// Cargar datos al montar el componente
+// Se ejecuta cuando se monta el componente
 onMounted(() => {
   if (!props.paquete) {
     cargarPaquete() // Cargar desde la API solo si no se pasa el paquete como prop
   }
 })
 
-const editarPaquete = () =>{
-  console.log("empieza a editar")
-  editando.value = true;
+const editarPaquete = () => {
+  console.log('Empieza a editar el paquete:', paquete.value.nombre)
+  editando.value = true
 }
-const guardarPaquete = (paqueteId) => {
-  const paqueteNombre = document.getElementById("paqueteNombre").value;
-  console.log("Termina de editar el " + paqueteId + "que se llama: " + paqueteNombre );
-  editando.value = false;
-};
 
-// Función para redirigir a la página de edición
-const redirigirEdicion = () => {
-  if (paquete.value && paquete.value.id) {
-    // Verifica si el paquete tiene ID
-    console.log('El ID del paquete a editar es:', paquete.value.id) // Imprime el ID
-    console.log('Datos completos del paquete:', paquete.value) // Imprime todos los datos del paquete
-    router.push({ name: 'agregar-paquete', params: { paqueteId: paquete.value.id } })
-  } else {
-    console.error('El ID del paquete no está disponible')
+const guardarPaquete = async (idPaquete) => {
+  try {
+    const data = {
+      nombre: paquete.value.nombre,
+      descripcion: paquete.value.descripcion,
+      precio: paquete.value.precio,
+      activo: paquete.value.activo
+    }
+
+    const token = store.getters.token
+
+    const paqueteActualizado = await actualizarPaquete(idPaquete, data, token)
+
+    paquete.value = paqueteActualizado
+    console.log('Paquete actualizado:', paqueteActualizado)
+
+    editando.value = false
+  } catch (error) {
+    console.error('Error al guardar el paquete:', error)
+  }
+}
+
+// Función para eliminar el paquete
+const eliminarPaquete = async (idPaquete) => {
+  try {
+    const token = store.getters.token // Obtener el token de Vuex para la autenticación
+    await EliminarPaqueteId(idPaquete, token) // Llamar a la API para eliminar el paquete
+
+    // Si la eliminación es exitosa, mostramos un mensaje y redirigimos
+    console.log('Paquete eliminado exitosamente')
+
+    // Redirigir a otra página (por ejemplo, la lista de paquetes)
+    router.push('/paquetes') // Cambia la ruta según tu lógica
+  } catch (error) {
+    console.error('Error al eliminar el paquete:', error)
   }
 }
 </script>
@@ -185,7 +228,6 @@ const redirigirEdicion = () => {
   background-color: #2980b9;
 }
 
-/* Estilo para el botón de editar */
 .btn-editar {
   margin-top: 15px;
   padding: 10px 20px;
@@ -198,5 +240,19 @@ const redirigirEdicion = () => {
 
 .btn-editar:hover {
   background-color: #e67e22;
+}
+
+.btn-eliminar {
+  margin-top: 15px;
+  padding: 10px 20px;
+  background-color: #e74c3c;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.btn-eliminar:hover {
+  background-color: #c0392b;
 }
 </style>

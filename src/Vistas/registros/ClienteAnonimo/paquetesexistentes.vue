@@ -5,23 +5,19 @@
       <h1>Paquetes Disponibles</h1>
     </div>
 
+    <div v-if="isGerente" class="paquete-item">
+      <h2><label for="nombre">nombre</label></h2>
+      <input type="text" name="nombre" id="nombre" v-model="nombre" /><br />
+      <h2><label for="descripcion">descripcion</label></h2>
+      <textarea v-model="descripcion" cols="50" id="descripcion"></textarea><br />
+      <h2><label for="precio">precio</label></h2>
+      <input type="text" name="precio" id="precio" v-model="precio" /><br />
+      <!-- Botón de agregar paquete -->
+      <button @click="AgregarPaquetes">Agregar Paquete</button>
+    </div>
 
-  <div v-if="isGerente"  class="paquete-item">
-    <h2><label for='nombre'>nombre</label></h2>
-    <input type='text' name='nombre' id='nombre'><br>
-    <h2><label for='descripcion'>descripcion</label></h2>
-    <textarea name="" cols="50"  id=""></textarea>
-    <br>
-    <h2><label for='precio'>precio</label></h2>
-    
-    <input type='text' name='precio' id='precio'><br>
-    <!-- Botón de editar -->
-    <button @click="redirigirAgregarPaquetes">Agregar Paquete</button>
-  </div>
-
-
-     <div v-if="paquetes.length">
-      <Paquetesitem v-for="paquete in paquetes" :key="paquete.id" :paquete="paquete" />
+    <div v-if="paquetes.length">
+      <PaquetesItem v-for="paquete in paquetes" :key="paquete.id" :paquete="paquete" />
     </div>
     <div v-else>
       <p>No hay paquetes disponibles en este momento.</p>
@@ -33,11 +29,10 @@
 import { ref, onMounted, computed } from 'vue'
 import { useStore } from 'vuex'
 import { mostrarPaquetes } from '@/Apis/api'
-import Paquetesitem from '@/components/PaquetesItem.vue'
-import { useRouter } from 'vue-router'
+import PaquetesItem from '@/components/PaquetesItem.vue'
+import { AgregarPaquete } from '@/Apis/api'
 
 const store = useStore()
-const router = useRouter()
 
 const paquetes = ref([])
 const isGerente = computed(() => {
@@ -45,6 +40,42 @@ const isGerente = computed(() => {
   console.log('Es gerente', role === 'Gerente')
   return role === 'Gerente'
 })
+
+// Referencias a los campos del formulario
+const nombre = ref('')
+const descripcion = ref('')
+const precio = ref('')
+
+// Función para agregar paquete
+const AgregarPaquetes = async () => {
+  if (!nombre.value || !descripcion.value || !precio.value) {
+    alert('Por favor, complete todos los campos.')
+    return
+  }
+
+  try {
+    const token = store.getters.token // Obtiene el token del store
+    const data = {
+      nombre: nombre.value,
+      descripcion: descripcion.value,
+      precio: precio.value
+    }
+
+    const nuevoPaquete = await AgregarPaquete(data, token)
+
+    if (nuevoPaquete) {
+      paquetes.value.push(nuevoPaquete) // Agrega el paquete a la lista
+      console.log('Nuevo paquete agregado:', nuevoPaquete)
+
+      // Limpia los campos del formulario
+      nombre.value = ''
+      descripcion.value = ''
+      precio.value = ''
+    }
+  } catch (error) {
+    console.error('Error al agregar paquete:', error)
+  }
+}
 
 const cargarPaquetes = async () => {
   try {
@@ -54,10 +85,6 @@ const cargarPaquetes = async () => {
   } catch (error) {
     console.error('Error al cargar los paquetes:', error)
   }
-}
-
-const redirigirAgregarPaquetes = () => {
-  router.push('/agregar-paquete')
 }
 
 onMounted(() => {
@@ -152,5 +179,4 @@ button:hover {
   border-radius: 50px;
   text-align: left;
 }
-
 </style>

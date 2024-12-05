@@ -50,7 +50,7 @@ const routes = [
       {
         path: 'paquetes-Gere',
         name: 'paquetes-gerente',
-        component: () => import('@/components/Gerente/PaquetesGerente.vue')
+        component: () => import('@/components/Gerente/AccionesPaquetes.vue')
       },
       {
         path: 'servicios',
