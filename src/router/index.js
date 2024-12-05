@@ -27,7 +27,7 @@ const routes = [
   {
     path: '/agregarservicio',
     name: 'agregar-servicio',
-    component: () => import('@/components/agregarServicio.vue')
+    component: () => import('@/components/AgregarServicio.vue')
   },
 
   {
