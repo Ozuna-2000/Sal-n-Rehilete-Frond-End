@@ -1,34 +1,36 @@
 <template>
   <div class="detalle-paquete">
     <h2>Imágenes del Paquete {{ paquete.nombre }}</h2>
+
+    <!-- Mostrar imágenes si existen -->
     <div v-if="medios.length">
       <div v-for="(medio, index) in medios" :key="medio.id" class="image-item">
-        <img :src="getImageUrl(medio)" alt="Imagen del paquete"  width="80" height="80"  />
-        
+        <img :src="getImageUrl(medio)" alt="Imagen del paquete" width="80" height="80" />
+
         <!-- Botón de eliminar imagen -->
         <button @click="confirmDeleteImage(index)" class="delete-icon" aria-label="Eliminar imagen">
           <i class="fas fa-times"></i>
         </button>
       </div>
-
-      <label>
-        Subir Imagen(es)
-        <input type="file" name="" id="" @click="subirImagen(paquete.id)">
-      </label>
-
-
     </div>
+
+    <!-- Mostrar mensaje si no hay imágenes, pero siempre mostrar la opción de subir imágenes -->
     <div v-else>
       <p>No hay imágenes disponibles para este paquete.</p>
     </div>
+
+    <!-- Siempre mostrar el formulario para subir imágenes -->
+    <label>
+      Subir Imagen(es)
+      <input type="file" @change="handleImageUpload" />
+    </label>
   </div>
 </template>
 
 <script setup>
-import { ref, watch, onMounted } from 'vue'
-import { obtenerMediosPaquete } from '@/Apis/api'
+import { ref, onMounted } from 'vue'
 import { useStore } from 'vuex'
-import { deleteImage } from '@/Apis/api'
+import { obtenerMediosPaquete, subirImagenPaquete, deleteImage } from '@/Apis/api'
 
 const props = defineProps({
   paquete: {
@@ -39,15 +41,15 @@ const props = defineProps({
 
 const medios = ref([])
 
+const store = useStore()
+
+// Obtener la URL de la imagen
 const getImageUrl = (medio) => {
-  const baseUrl = 'http://127.0.0.1:8000/api/paquetes' // Base de la URL para las imágenes
+  const baseUrl = 'http://127.0.0.1:8000/api/paquetes'
   return `${baseUrl}/${props.paquete.id}/medios/${medio.id}`
 }
 
-const subirImagen = (paqueteId) => {
-  console.log("Subir la imagen" );
-};
-
+// Cargar medios
 const cargarMedios = async () => {
   const idPaquete = props.paquete.id
   if (!idPaquete) {
@@ -56,21 +58,37 @@ const cargarMedios = async () => {
   }
 
   try {
-    const token = useStore().getters.token
+    const token = store.getters.token
     medios.value = await obtenerMediosPaquete(idPaquete, token)
     console.log('Medios cargados:', medios.value)
   } catch (error) {
     console.error('Error al cargar los medios:', error)
-    if (error.response && error.response.data) {
-      console.error('Respuesta de error:', error.response.data)
-    } else {
-      alert('No se pudieron cargar las imágenes del paquete.')
-    }
   }
 }
 
+// Subir imagen(es)
+const handleImageUpload = async (event) => {
+  const archivos = event.target.files
+  if (!archivos.length) {
+    return
+  }
+
+  try {
+    // Convertir FileList a Array
+    const archivosArray = Array.from(archivos)
+
+    const token = store.getters.token
+    const respuesta = await subirImagenPaquete(props.paquete.id, archivosArray, token)
+    console.log('Imágenes subidas:', respuesta)
+    cargarMedios() // Volver a cargar los medios después de subir las imágenes
+  } catch (error) {
+    console.error('Error al subir las imágenes:', error)
+  }
+}
+
+// Confirmar eliminación de una imagen
 const confirmDeleteImage = (index) => {
-  const medio = medios.value[index] // Obtén el medio a eliminar
+  const medio = medios.value[index]
   if (window.confirm('¿Estás seguro de que quieres eliminar esta imagen?')) {
     deleteImage(props.paquete.id, medio.id).then((success) => {
       if (success) {
@@ -81,8 +99,6 @@ const confirmDeleteImage = (index) => {
 }
 
 // Cargar medios cuando el paquete cambie
-watch(() => props.paquete.id, cargarMedios)
-
 onMounted(() => {
   cargarMedios()
 })
@@ -100,7 +116,7 @@ onMounted(() => {
 }
 
 .delete-icon {
-  position: absolute ;
+  position: absolute;
   top: 5px;
   right: 5px;
   background: rgba(0, 0, 0, 0.7); /* Fondo oscuro para mejorar visibilidad */

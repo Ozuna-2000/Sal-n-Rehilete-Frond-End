@@ -159,7 +159,7 @@ export const ActivarPaqueteId = async (paqueteId) => {
 
 export const EliminarPaqueteId = async (paqueteId) => {
   try {
-    const token = store.state.token // Asegúrate de obtener el token correctamente
+    const token = store.state.token
     const response = await axios.delete(`${url}/api/paquetes/${paqueteId}`, {
       headers: {
         Authorization: `Bearer ${token}`
@@ -169,48 +169,6 @@ export const EliminarPaqueteId = async (paqueteId) => {
   } catch (error) {
     console.error('Error al eliminar el paquete:', error)
     throw error // Esto permite que el error se maneje en el componente
-  }
-}
-export const subirImagen = async (imagenes, idPaquete, token) => {
-  if (!imagenes || imagenes.length === 0) {
-    throw new Error('Debe seleccionar al menos una imagen.')
-  }
-
-  const formData = new FormData()
-  formData.append('id', idPaquete)
-  formData.append('_method', 'PUT') // Se agrega _method=PUT para indicar que es una actualización
-
-  // Validar tipos de archivo antes de agregar
-  imagenes.forEach((imagen) => {
-    if (
-      !['image/jpeg', 'image/png', 'image/jpg', 'image/webp', 'image/avif'].includes(
-        imagen.file.type
-      )
-    ) {
-      throw new Error('Solo se permiten imágenes en formato JPG, PNG, WEBP, o AVIF.')
-    }
-    formData.append('imagenes[]', imagen.file)
-  })
-
-  try {
-    const response = await axios.post(`${url}/api/paquetes/${idPaquete}/medios`, formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-        Authorization: `Bearer ${token}`
-      }
-    })
-
-    if (response.data && response.data.success) {
-      return response.data
-    } else {
-      throw new Error('Error en la respuesta del servidor: ' + JSON.stringify(response.data))
-    }
-  } catch (error) {
-    console.error(
-      'Error al subir las imágenes:',
-      error.response ? error.response.data : error.message
-    )
-    throw error
   }
 }
 
@@ -312,5 +270,29 @@ export const actualizarPaquete = async (idPaquete, data, token) => {
   } catch (error) {
     console.error('Error al actualizar el paquete:', error.response ? error.response.data : error)
     throw error // Lanza el error si hay un problema con la solicitud
+  }
+}
+
+export const subirImagenPaquete = async (paqueteId, archivos, token) => {
+  try {
+    // Crear una instancia de FormData para enviar los archivos
+    const formData = new FormData()
+    archivos.forEach((archivo) => {
+      formData.append('imagenes[]', archivo) // 'imagenes[]' es el nombre esperado por la API
+    })
+
+    // Realizar la solicitud POST a la API
+    const response = await axios.post(`${url}/api/paquetes/${paqueteId}/medios`, formData, {
+      headers: {
+        Authorization: `Bearer ${token}`, // Token de autenticación
+        'Content-Type': 'multipart/form-data' // Indicar que se está enviando un formulario con archivos
+      }
+    })
+
+    // Devolver la respuesta de la API
+    return response.data
+  } catch (error) {
+    console.error('Error al subir las imágenes:', error)
+    throw error // Reenviar el error para manejarlo en el componente
   }
 }

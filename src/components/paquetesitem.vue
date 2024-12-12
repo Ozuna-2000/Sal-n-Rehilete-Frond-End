@@ -74,14 +74,23 @@
       </button>
     </div>
 
-    <!-- Integrar AccionesPaquetes aquí -->
+    <!-- Botón de Activación -->
+    <button
+      :style="{ backgroundColor: paquete.activo === 1 ? 'green' : 'red' }"
+      @click="activarDesactivarPaquete(paquete)"
+      class="btn-activar"
+    >
+      {{ paquete.activo === 1 ? 'Paquete Activo' : 'Paquete Inactivo' }}
+    </button>
+
+    <!-- Agregamos un v-model para mantener el valor sincronizado -->
+    <input type="checkbox" v-model="paquete.activo" :true-value="1" :false-value="0" />
 
     <!-- Botón para ver/ocultar medios (DetallePaquete) -->
     <button @click="mostrarMedios = !mostrarMedios">
       {{ mostrarMedios ? 'Ocultar Medios' : 'Ver Medios' }}
     </button>
 
-    <!-- Mostrar el componente DetallePaquete solo si mostrarMedios es verdadero -->
     <DetallePaquete v-if="mostrarMedios" :paquete="paquete" />
   </div>
   <p v-else>Cargando paquete...</p>
@@ -94,7 +103,7 @@ import { useStore } from 'vuex' // Importamos el store
 import { obtenerPaquetePorId, actualizarPaquete } from '@/Apis/api'
 import DetallePaquete from '@/components/DetallePaquete.vue' // Importar el componente DetallePaquete
 import AccionesPaquetes from './Gerente/AccionesPaquetes.vue'
-import { EliminarPaqueteId } from '@/Apis/api'
+import { EliminarPaqueteId, ActivarPaqueteId } from '@/Apis/api'
 
 const store = useStore()
 
@@ -148,7 +157,7 @@ const guardarPaquete = async (idPaquete) => {
       nombre: paquete.value.nombre,
       descripcion: paquete.value.descripcion,
       precio: paquete.value.precio,
-      activo: paquete.value.activo
+      activo: Number(paquete.value.activo)
     }
 
     const token = store.getters.token
@@ -177,6 +186,29 @@ const eliminarPaquete = async (idPaquete) => {
     router.push('/paquetes') // Cambia la ruta según tu lógica
   } catch (error) {
     console.error('Error al eliminar el paquete:', error)
+  }
+}
+
+// Función de activación/desactivación
+const activarDesactivarPaquete = async (paquete) => {
+  console.log('Paquete recibido:', paquete)
+
+  if (!paquete || !paquete.id) {
+    console.error('El paquete no tiene un id válido')
+    return
+  }
+
+  try {
+    const paqueteId = paquete.id
+    console.log('Activando/desactivando paquete con ID:', paqueteId)
+    const response = await ActivarPaqueteId(paqueteId)
+
+    if (response) {
+      paquete.activo = paquete.activo === 1 ? 0 : 1
+      console.log(paquete.activo === 1 ? 'Paquete activado' : 'Paquete desactivado')
+    }
+  } catch (error) {
+    console.error('Error al cambiar el estado del paquete:', error)
   }
 }
 </script>
@@ -254,5 +286,17 @@ const eliminarPaquete = async (idPaquete) => {
 
 .btn-eliminar:hover {
   background-color: #c0392b;
+}
+
+.btn-activar {
+  margin-top: 15px;
+  padding: 10px 20px;
+  color: white;
+  border: none;
+  border-radius: 5px;
+}
+
+.btn-activar:hover {
+  opacity: 0.8;
 }
 </style>

@@ -9,11 +9,11 @@
 </template>
 
 <script setup>
-import { useRouter, useRoute } from 'vue-router'
-import { EliminarPaqueteId, ActivarPaqueteId } from '@/Apis/api' // Importa las funciones de la API
+import { useRouter } from 'vue-router'
+import { EliminarPaqueteId, ActivarPaqueteId } from '@/Apis/api'
 
-const router = useRouter()
-const route = useRoute() // Usamos useRoute para obtener parámetros de la ruta
+const route = useRouter()
+// Usamos useRoute para obtener parámetros de la ruta
 
 // Asegurarnos de que el 'paqueteId' se obtenga correctamente desde la ruta
 const paqueteId = route.params.paqueteId
@@ -25,8 +25,8 @@ const eliminarPaquete = async (paqueteId, token) => {
       console.error('ID del paquete no disponible')
       return
     }
-    console.log('Paquete ID:', paqueteId) // Verifica el ID antes de hacer la solicitud
-    await EliminarPaqueteId(paqueteId) // Llamada para eliminar en la API
+    console.log('Paquete ID:', paqueteId)
+    await EliminarPaqueteId(paqueteId)
     console.log('El paquete ha sido eliminado correctamente')
   } catch (error) {
     console.error('Error al eliminar el paquete:', error)

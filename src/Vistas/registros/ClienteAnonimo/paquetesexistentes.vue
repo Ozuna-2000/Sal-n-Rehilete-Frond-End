@@ -11,7 +11,7 @@
       <h2><label for="descripcion">descripcion</label></h2>
       <textarea v-model="descripcion" cols="50" id="descripcion"></textarea><br />
       <h2><label for="precio">precio</label></h2>
-      <input type="text" name="precio" id="precio" v-model="precio" /><br />
+      <input type="number" name="precio" id="precio" v-model="precio" /><br />
       <!-- Botón de agregar paquete -->
       <button @click="AgregarPaquetes">Agregar Paquete</button>
     </div>
