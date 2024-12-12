@@ -54,7 +54,7 @@ const AgregarPaquetes = async () => {
   }
 
   try {
-    const token = store.getters.token // Obtiene el token del store
+    const token = store.getters.token
     const data = {
       nombre: nombre.value,
       descripcion: descripcion.value,

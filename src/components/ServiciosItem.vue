@@ -1,13 +1,43 @@
 <template>
-  <div class="servicio-item">
-    <h2>{{ servicio.nombre }}</h2>
-    <h2>{{ servicio.precio }} MXN</h2>
-    <p>{{ servicio.descripcion }}</p>
+  <div v-if="servicio" class="servicio-item">
+    <diV v-if="editando">
+      <h2>
+        <input type="text" v-model="servicio.nombre" name="servicioNombre" id="servicioNombre" />
+      </h2>
+      <p>
+        <textarea
+          v-model="servicio.descripcion"
+          name="servicioDescripcion"
+          cols="80"
+          rows="6"
+          id="servicioDescripcion"
+        ></textarea>
+      </p>
+      <p>
+        Precio:
+        <input type="number" v-model="servicio.precio" name="servicioPrecio" id="servicioPrecio" />
+        MXN
+      </p>
+      <p>
+        Minimo personas:
+        <input type="number" v-model="servicio.minimo" name="servicioMinimo" id="servicioMinimo" />
+      </p>
+      <button v-if="puedeEditar" @click="guardarServicio(servicio.id)" class="btn-editar">
+        Guardar
+      </button>
+    </diV>
+
+    <div v-else>
+      <h2>{{ servicio.nombre }}</h2>
+      <h2>{{ servicio.precio }} MXN</h2>
+      <p>{{ servicio.descripcion }}</p>
+      <p>{{ servicio.minimo }}</p>
+    </div>
   </div>
 </template>
 
 <script setup>
-// Definimos las props que recibirá el componente
+const editando = ref(false)
 const props = defineProps({
   servicio: {
     type: Object,
@@ -26,8 +56,6 @@ const { servicio } = props
   margin-bottom: 15px; /* Margen inferior */
   border-radius: 10px; /* Bordes redondeados */
   text-align: left; /* Alinear texto a la izquierda */
-  max-width: 400px; /* Ancho máximo */
-  overflow: hidden; /* Evitar desbordamiento */
 }
 
 h2 {
