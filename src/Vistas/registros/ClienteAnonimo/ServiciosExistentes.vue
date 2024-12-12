@@ -19,7 +19,7 @@
 import { ref, onMounted, computed } from 'vue'
 import { useStore } from 'vuex'
 import { mostrarServicios } from '@/Apis/api'
-import serviciositem from '@/components/serviciositem.vue'
+import serviciositem from '@/components/ServiciosItem.vue'
 import { useRouter } from 'vue-router'
 
 const store = useStore()
