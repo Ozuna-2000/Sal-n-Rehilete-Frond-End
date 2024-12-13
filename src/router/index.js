@@ -24,11 +24,6 @@ const routes = [
     name: 'servicios',
     component: () => import('@/Vistas/registros/ClienteAnonimo/ServiciosExistentes.vue')
   },
-  {
-    path: '/agregarservicio',
-    name: 'agregar-servicio',
-    component: () => import('@/components/AgregarServicio.vue')
-  },
 
   {
     path: '/paquete/:paqueteId/medios',
@@ -67,6 +62,12 @@ const routes = [
         name: 'paquetesitem',
         component: () => import('@/components/PaquetesItem.vue'), // Ajusta la ruta según la ubicación del componente
         props: true // Permite pasar el paqueteId como propiedad
+      },
+      {
+        path: '/servicios/:servicioId',
+        name: 'ServciosItem',
+        component: () => import('@/components/ServiciosItem.vue'),
+        props: true
       },
 
       {

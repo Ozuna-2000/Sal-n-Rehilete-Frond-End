@@ -98,7 +98,7 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
+import { useRoute } from 'vue-router'
 import { useStore } from 'vuex' // Importamos el store
 import { obtenerPaquetePorId, actualizarPaquete } from '@/Apis/api'
 import DetallePaquete from '@/components/DetallePaquete.vue' // Importar el componente DetallePaquete
@@ -120,9 +120,9 @@ const mostrarServicios = ref(false) // Mostrar/ocultar servicios
 const mostrarMedios = ref(false) // Mostrar/ocultar medios (DetallePaquete)
 const puedeEditar = ref(true) // Determinar si el paquete se puede editar (puedes poner tu lógica aquí)
 
-const route = useRoute()
-const router = useRouter()
-const paqueteId = route.params.paqueteId
+const router = useRoute()
+//const router = useRouter()
+const paqueteId = router.params.paqueteId
 
 // Función para cargar el paquete desde la API
 const cargarPaquete = async () => {

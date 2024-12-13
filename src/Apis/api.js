@@ -273,6 +273,28 @@ export const actualizarPaquete = async (idPaquete, data, token) => {
   }
 }
 
+export const actualizarServicio = async (idServicio, data, token) => {
+  try {
+    const formData = new FormData()
+    formData.append('_method', 'PUT')
+    formData.append('precio', data.precio)
+    formData.append('descripcion', data.descripcion)
+    formData.append('minimo', data.minimo)
+    formData.append('nombre', data.nombre)
+
+    const response = await axios.post(`${url}/api/servicios/${idServicio}`, formData, {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    })
+    console.log('Servicio Actualizado', response.data)
+    return response.data
+  } catch (error) {
+    console.error('Error al actualizar el servicio')
+    throw error
+  }
+}
+
 export const subirImagenPaquete = async (paqueteId, archivos, token) => {
   try {
     // Crear una instancia de FormData para enviar los archivos
@@ -294,5 +316,78 @@ export const subirImagenPaquete = async (paqueteId, archivos, token) => {
   } catch (error) {
     console.error('Error al subir las imágenes:', error)
     throw error // Reenviar el error para manejarlo en el componente
+  }
+}
+export const obtenerServicioPorId = async (servicioId) => {
+  console.log('Paquete ID recibido:', servicioId) // Verifica el valor de paqueteId
+  try {
+    const response = await axios.get(`${url}/api/servicios/${servicioId}`)
+    return response.data
+  } catch (error) {
+    console.log('Error al acceder al paquete específico:', error)
+    throw error
+  }
+}
+
+export const EliminarServicioId = async (servicioId) => {
+  try {
+    const token = store.state.token
+    const response = await axios.delete(`${url}/api/servicios/${servicioId}`, {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    })
+    return response.data
+  } catch (error) {
+    console.error('Error al eliminar el servicio:', error)
+    throw error // Esto permite que el error se maneje en el componente
+  }
+}
+export const obtenerMedioServicio = async (idServicio, token) => {
+  const response = await axios.get(`http://127.0.0.1:8000/api/servicios/${idServicio}/medios`, {
+    headers: {
+      Authorization: `Bearer ${token}`
+    }
+  })
+  return response.data
+}
+export const subirImagenServicio = async (servicioId, archivos, token) => {
+  try {
+    // Crear una instancia de FormData para enviar los archivos
+    const formData = new FormData()
+    archivos.forEach((archivo) => {
+      formData.append('imagenes[]', archivo) // 'imagenes[]' es el nombre esperado por la API
+    })
+
+    // Realizar la solicitud POST a la API
+    const response = await axios.post(`${url}/api/servicios/${servicioId}/medios`, formData, {
+      headers: {
+        Authorization: `Bearer ${token}`, // Token de autenticación
+        'Content-Type': 'multipart/form-data' // Indicar que se está enviando un formulario con archivos
+      }
+    })
+
+    // Devolver la respuesta de la API
+    return response.data
+  } catch (error) {
+    console.error('Error al subir las imágenes:', error)
+    throw error // Reenviar el error para manejarlo en el componente
+  }
+}
+export const deleteImageServicio = async (servicioId, medioId) => {
+  const token = store.state.token // Obtiene el token de Vuex
+
+  try {
+    const response = await axios.delete(`${url}/api/servicios/${servicioId}/medios/${medioId}`, {
+      headers: {
+        Authorization: `Bearer ${token}` // Enviar token en los encabezados
+      }
+    })
+    console.log('Imagen eliminada con éxito:', response.data)
+    return true // Retorna true si la eliminación fue exitosa
+  } catch (error) {
+    console.error('Error al eliminar la imagen:', error)
+    alert('No se pudo eliminar la imagen.')
+    return false // Retorna false si ocurrió un error
   }
 }
