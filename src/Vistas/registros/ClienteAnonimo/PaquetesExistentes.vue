@@ -1,16 +1,26 @@
 <template>
-  <div class="servicios-container">
+  <div class="paquetes-container">
     <!-- Barra superior -->
     <div class="navbar">
-      <h1>Servicios Disponibles</h1>
-      <button v-if="isGerente" @click="redirigirAgregarServicios">Agregar Servicio</button>
+      <h1>Paquetes Disponibles</h1>
     </div>
 
-    <div v-if="servicios.length">
-      <serviciositem v-for="servicio in servicios" :key="servicio.id" :servicio="servicio" />
+    <div v-if="isGerente" class="paquete-item">
+      <h2><label for="nombre">nombre</label></h2>
+      <input type="text" name="nombre" id="nombre" v-model="nombre" /><br />
+      <h2><label for="descripcion">descripcion</label></h2>
+      <textarea v-model="descripcion" cols="50" id="descripcion"></textarea><br />
+      <h2><label for="precio">precio</label></h2>
+      <input type="number" name="precio" id="precio" v-model="precio" /><br />
+      <!-- Botón de agregar paquete -->
+      <button @click="AgregarPaquetes">Agregar Paquete</button>
+    </div>
+
+    <div v-if="paquetes.length">
+      <PaquetesItem v-for="paquete in paquetes" :key="paquete.id" :paquete="paquete" />
     </div>
     <div v-else>
-      <p>No hay servicios disponibles en este momento.</p>
+      <p>No hay paquetes disponibles en este momento.</p>
     </div>
   </div>
 </template>
@@ -18,31 +28,67 @@
 <script setup>
 import { ref, onMounted, computed } from 'vue'
 import { useStore } from 'vuex'
-import { mostrarServicios } from '@/Apis/api'
-import serviciositem from '@/components/serviciositem.vue'
-import { useRouter } from 'vue-router'
+import { mostrarPaquetes } from '@/Apis/api'
+import PaquetesItem from '@/components/PaquetesItem.vue'
+import { AgregarPaquete } from '@/Apis/api'
 
 const store = useStore()
-const router = useRouter()
 
-const servicios = ref([])
-const isGerente = computed(() => store.getters.userRole === 'Gerente')
+const paquetes = ref([])
+const isGerente = computed(() => {
+  const role = store.getters.userRole
+  console.log('Es gerente', role === 'Gerente')
+  return role === 'Gerente'
+})
 
-const cargarServicios = async () => {
+// Referencias a los campos del formulario
+const nombre = ref('')
+const descripcion = ref('')
+const precio = ref('')
+
+// Función para agregar paquete
+const AgregarPaquetes = async () => {
+  if (!nombre.value || !descripcion.value || !precio.value) {
+    alert('Por favor, complete todos los campos.')
+    return
+  }
+
   try {
-    const data = await mostrarServicios()
-    servicios.value = data
+    const token = store.getters.token
+    const data = {
+      nombre: nombre.value,
+      descripcion: descripcion.value,
+      precio: precio.value
+    }
+
+    const nuevoPaquete = await AgregarPaquete(data, token)
+
+    if (nuevoPaquete) {
+      paquetes.value.push(nuevoPaquete) // Agrega el paquete a la lista
+      console.log('Nuevo paquete agregado:', nuevoPaquete)
+
+      // Limpia los campos del formulario
+      nombre.value = ''
+      descripcion.value = ''
+      precio.value = ''
+    }
   } catch (error) {
-    console.error('Error al cargar los servicios:', error)
+    console.error('Error al agregar paquete:', error)
   }
 }
 
-const redirigirAgregarServicios = () => {
-  router.push('/agregarServicios')
+const cargarPaquetes = async () => {
+  try {
+    const data = await mostrarPaquetes()
+    paquetes.value = data
+    console.log('Paquetes cargados:', paquetes.value)
+  } catch (error) {
+    console.error('Error al cargar los paquetes:', error)
+  }
 }
 
 onMounted(() => {
-  cargarServicios()
+  cargarPaquetes()
 })
 </script>
 
@@ -78,10 +124,10 @@ onMounted(() => {
 }
 
 /* Contenedor de paquetes */
-.servicios-container {
+.paquetes-container {
   padding: 20px;
   text-align: center;
-  width: 200%; /* Ajusta el ancho según sea necesario */
+  width: 600%; /* Ajusta el ancho según sea necesario */
   max-width: 1200px; /* Limitar el ancho máximo */
   margin: 0 auto; /* Centrar el contenedor */
   background-color: #ecf0f1; /* Color de fondo suave */
@@ -90,7 +136,7 @@ onMounted(() => {
 }
 
 /* Estilo para cada paquete */
-.servicio-item {
+.paquete-item {
   background-color: white; /* Fondo blanco para los elementos de paquete */
   border: 1px solid #bdc3c7; /* Borde sutil */
   border-radius: 10px; /* Bordes redondeados */
@@ -100,7 +146,7 @@ onMounted(() => {
   transition: transform 0.2s; /* Efecto de transición */
 }
 
-.servicio-item:hover {
+.paquete-item:hover {
   transform: translateY(-5px); /* Levanta el elemento al pasar el mouse */
 }
 
@@ -124,5 +170,13 @@ button {
 
 button:hover {
   background-color: #27ae60; /* Color más oscuro al pasar el mouse */
+}
+
+.paquete-item {
+  border: 1px solid #595b15;
+  padding: 20px;
+  margin-bottom: 15px;
+  border-radius: 50px;
+  text-align: left;
 }
 </style>

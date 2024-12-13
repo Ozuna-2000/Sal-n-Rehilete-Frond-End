@@ -1,11 +1,11 @@
 <template>
   <div class="detalle-paquete">
-    <h2>Imágenes del Paquete {{ paquete.nombre }}</h2>
+    <h2>Imágenes del Servicio {{ servicio.nombre }}</h2>
 
     <!-- Mostrar imágenes si existen -->
     <div v-if="medios.length">
       <div v-for="(medio, index) in medios" :key="medio.id" class="image-item">
-        <img :src="getImageUrl(medio)" alt="Imagen del paquete" width="80" height="80" />
+        <img :src="getImageUrl(medio)" alt="Imagen del servicio" width="500" height="500" />
 
         <!-- Botón de eliminar imagen -->
         <button @click="confirmDeleteImage(index)" class="delete-icon" aria-label="Eliminar imagen">
@@ -16,7 +16,7 @@
 
     <!-- Mostrar mensaje si no hay imágenes, pero siempre mostrar la opción de subir imágenes -->
     <div v-else>
-      <p>No hay imágenes disponibles para este paquete.</p>
+      <p>No hay imágenes disponibles para este servicio.</p>
     </div>
 
     <!-- Siempre mostrar el formulario para subir imágenes -->
@@ -30,10 +30,10 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useStore } from 'vuex'
-import { obtenerMediosPaquete, subirImagenPaquete, deleteImage } from '@/Apis/api'
+import { obtenerMedioServicio, subirImagenServicio, deleteImageServicio } from '@/Apis/api'
 
 const props = defineProps({
-  paquete: {
+  servicio: {
     type: Object,
     required: true
   }
@@ -45,21 +45,21 @@ const store = useStore()
 
 // Obtener la URL de la imagen
 const getImageUrl = (medio) => {
-  const baseUrl = 'http://127.0.0.1:8000/api/paquetes'
-  return `${baseUrl}/${props.paquete.id}/medios/${medio.id}`
+  const baseUrl = 'http://127.0.0.1:8000/api/servicios'
+  return `${baseUrl}/${props.servicio.id}/medios/${medio.id}`
 }
 
 // Cargar medios
 const cargarMedios = async () => {
-  const idPaquete = props.paquete.id
-  if (!idPaquete) {
+  const idServicio = props.servicio.id
+  if (!idServicio) {
     console.error('ID del paquete no disponible')
     return
   }
 
   try {
     const token = store.getters.token
-    medios.value = await obtenerMediosPaquete(idPaquete, token)
+    medios.value = await obtenerMedioServicio(idServicio, token)
     console.log('Medios cargados:', medios.value)
   } catch (error) {
     console.error('Error al cargar los medios:', error)
@@ -78,7 +78,7 @@ const handleImageUpload = async (event) => {
     const archivosArray = Array.from(archivos)
 
     const token = store.getters.token
-    const respuesta = await subirImagenPaquete(props.paquete.id, archivosArray, token)
+    const respuesta = await subirImagenServicio(props.servicio.id, archivosArray, token)
     console.log('Imágenes subidas:', respuesta)
     cargarMedios() // Volver a cargar los medios después de subir las imágenes
   } catch (error) {
@@ -90,7 +90,7 @@ const handleImageUpload = async (event) => {
 const confirmDeleteImage = (index) => {
   const medio = medios.value[index]
   if (window.confirm('¿Estás seguro de que quieres eliminar esta imagen?')) {
-    deleteImage(props.paquete.id, medio.id).then((success) => {
+    deleteImageServicio(props.servicio.id, medio.id).then((success) => {
       if (success) {
         medios.value.splice(index, 1)
       }
