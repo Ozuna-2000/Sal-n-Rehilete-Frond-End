@@ -24,6 +24,11 @@ const routes = [
     name: 'servicios',
     component: () => import('@/Vistas/registros/ClienteAnonimo/ServiciosExistentes.vue')
   },
+  {
+    path: '/eventos',
+    name: 'eventos',
+    component: () => import('@/components/Gerente/EventosPrincipa.vue')
+  },
 
   {
     path: '/paquete/:paqueteId/medios',
@@ -68,19 +73,8 @@ const routes = [
         name: 'ServciosItem',
         component: () => import('@/components/ServiciosItem.vue'),
         props: true
-      },
-
-      {
-        path: 'agregar-paquete',
-        name: 'agregar-paquete-gerente',
-        component: () => import('@/components/AgregarServicioPaquete/viewPaqueteServicio.vue')
       }
     ]
-  },
-  {
-    path: '/agregar-paquete/:paqueteId?',
-    name: 'agregar-paquete',
-    component: () => import('@/components/AgregarServicioPaquete/viewPaqueteServicio.vue')
   }
 ]
 

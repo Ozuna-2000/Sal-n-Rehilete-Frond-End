@@ -391,3 +391,19 @@ export const deleteImageServicio = async (servicioId, medioId) => {
     return false // Retorna false si ocurrió un error
   }
 }
+
+export const obtenerEventos = async () => {
+  try {
+    const token = store.state.token
+    const respuesta = await axios.get(`${url}/api/eventos`, {
+      headers: {
+        Authorization: `Bearer ${token}` // Bearer Token en la cabecera
+      }
+    })
+
+    return respuesta.data // Devuelve los datos de los eventos
+  } catch (error) {
+    console.error('Error al obtener los eventos:', error)
+    throw error // Lanza el error para manejarlo en el componente
+  }
+}

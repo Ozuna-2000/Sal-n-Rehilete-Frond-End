@@ -7,6 +7,7 @@
           <li><router-link to="/">Inicio</router-link></li>
           <li><router-link to="/paquetes">Paquetes</router-link></li>
           <li><router-link to="/servicios">Servicios</router-link></li>
+          <li><router-link to="/eventos">Eventos</router-link></li>
           <li><a href="#conocenos">Conócenos</a></li>
           <li><a href="#contactanos">Contáctanos</a></li>
           <li v-if="!isAuthenticated"><router-link to="/login">Entrar</router-link></li>
