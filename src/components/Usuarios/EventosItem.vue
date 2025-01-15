@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="evento-item">
     <h2>{{ evento.nombre }}</h2>
     <p>{{ evento.descripcion }}</p>
     <p><strong>Fecha:</strong> {{ evento.fecha }}</p>
@@ -26,9 +26,6 @@
 <script setup>
 import { ref } from 'vue'
 
-// No es necesario declarar 'props' explícitamente
-
-// Definir los props directamente utilizando defineProps()
 defineProps({
   evento: {
     type: Object,
@@ -36,19 +33,72 @@ defineProps({
   }
 })
 
-// Crear una propiedad local `mostrarServicios` para manejar la visibilidad
 const mostrarServicios = ref(false)
 
-// Función para manejar la visibilidad de los servicios
 const toggleServicios = () => {
   mostrarServicios.value = !mostrarServicios.value
 }
 </script>
 
 <style scoped>
+/* Estilo para el contenedor de cada evento */
+.evento-item {
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  margin-bottom: 20px;
+  transition:
+    transform 0.3s ease,
+    box-shadow 0.3s ease;
+  min-height: 300px; /* Asegura que los eventos sean más largos */
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between; /* Asegura que el contenido se distribuya en el espacio disponible */
+}
+
+/* Aumentamos el tamaño de los encabezados */
+.evento-item h2 {
+  font-size: 1.8rem;
+  color: #333;
+  margin-bottom: 15px;
+  font-family: 'Roboto', sans-serif;
+  font-weight: bold;
+}
+
+/* Estilo para los párrafos dentro de cada evento */
+.evento-item p {
+  font-size: 1.1rem;
+  color: #555;
+  margin: 8px 0;
+}
+
+/* Estilo para el botón */
 button {
-  margin-top: 10px;
-  padding: 5px 10px;
+  margin-top: 15px;
+  padding: 8px 15px;
   cursor: pointer;
+  background-color: #3498db;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  transition: background-color 0.3s ease;
+}
+
+button:hover {
+  background-color: #2980b9;
+}
+
+/* Lista de servicios */
+ul {
+  list-style: none;
+  padding-left: 0;
+  margin-top: 10px;
+}
+
+li {
+  font-size: 1rem;
+  color: #333;
+  margin-bottom: 5px;
 }
 </style>

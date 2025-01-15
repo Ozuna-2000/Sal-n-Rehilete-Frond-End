@@ -407,3 +407,71 @@ export const obtenerEventos = async () => {
     throw error // Lanza el error para manejarlo en el componente
   }
 }
+
+export const eliminarServicioPaquete = async (paqueteId, idServicio) => {
+  try {
+    const token = store.state.token
+
+    if (!token) {
+      throw new Error('No se encontró un token de autenticación. Por favor, inicia sesión.')
+    }
+
+    const response = await axios.delete(
+      `${url}/api/paquetes/${paqueteId}/servicios/${idServicio}`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      }
+    )
+
+    console.log('Servicio eliminado con éxito:', response.data)
+    return response.data
+  } catch (error) {
+    // Diferencia entre errores de la API y otros errores
+    if (error.response) {
+      console.error('Error de la API:', error.response.data)
+    } else {
+      console.error('Error de red o del cliente:', error.message)
+    }
+    throw error // Re-lanza el error para manejarlo en el componente
+  }
+}
+
+export const agregarServicioPaquete = async (paqueteId, servicios, cantidades) => {
+  try {
+    const token = store.state.token
+
+    if (!token) {
+      throw new Error('No se encontró un token de autenticación. Por favor, inicia sesión.')
+    }
+
+    // Asegúrate de que los arreglos de servicios y cantidades tengan el mismo tamaño
+    if (servicios.length !== cantidades.length) {
+      throw new Error('Los arreglos servicios y cantidades deben tener el mismo tamaño.')
+    }
+
+    const response = await axios.post(
+      `${url}/api/paquetes/${paqueteId}/servicios/`,
+      {
+        servicios, // Lista de servicios
+        cantidades // Lista de cantidades correspondientes a cada servicio
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      }
+    )
+
+    console.log('Servicio agregado con éxito:', response.data)
+    return response.data
+  } catch (error) {
+    if (error.response) {
+      console.error('Error de la API:', error.response.data)
+    } else {
+      console.error('Error de red o del cliente:', error.message)
+    }
+    throw error
+  }
+}

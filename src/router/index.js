@@ -41,6 +41,12 @@ const routes = [
     name: 'agregar-usuario',
     component: () => import('@/Vistas/Registro.vue')
   },
+
+  {
+    path: '/ListaUsuarios',
+    name: 'listaUsuarios',
+    component: () => import('@/components/Usuarios/ListarUsuarios.vue')
+  },
   {
     path: '/VistaGerente',
     name: 'Gerente',
@@ -57,11 +63,7 @@ const routes = [
         name: 'servicios-gerente',
         component: () => import('@/Vistas/registros/ClienteAnonimo/ServiciosExistentes.vue')
       },
-      {
-        path: 'ListaUsuarios',
-        name: 'listaUsuarios',
-        component: () => import('@/components/Usuarios/ListarUsuarios.vue')
-      },
+
       {
         path: 'paquetes/:paqueteId',
         name: 'paquetesitem',

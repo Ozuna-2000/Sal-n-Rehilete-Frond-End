@@ -1,64 +1,68 @@
 <template>
-  <div class="acciones-paquetes">
-    <div>
-      <button @click="verPaquete">Ver Paquete</button>
-      <button @click="eliminarPaquete">Eliminar Paquete</button>
-      <button @click="cambiarEstadoPaquete">Activar/Desactivar Paquete</button>
-    </div>
+  <div class="acciones-paquete">
+    <button @click="eliminarPaquete" class="btn-eliminar">Eliminar</button>
+  </div>
+  <div class="acciones-paquete">
+    <button
+      :style="{ backgroundColor: paquete.activo === 1 ? 'green' : 'red' }"
+      @click="activarDesactivarPaquete(paquete)"
+      class="btn-activar"
+    >
+      {{ paquete.activo === 1 ? 'Paquete Activo' : 'Paquete Inactivo' }}
+    </button>
+
+    <!-- Checkbox para activar/desactivar paquete -->
+    <input type="checkbox" v-model="paquete.activo" :true-value="1" :false-value="0" />
   </div>
 </template>
 
 <script setup>
 import { useRouter } from 'vue-router'
+import { useStore } from 'vuex'
 import { EliminarPaqueteId, ActivarPaqueteId } from '@/Apis/api'
 
-const route = useRouter()
-// Usamos useRoute para obtener parámetros de la ruta
+const props = defineProps({
+  paquete: {
+    type: Object,
+    required: true
+  }
+})
 
-// Asegurarnos de que el 'paqueteId' se obtenga correctamente desde la ruta
-const paqueteId = route.params.paqueteId
+const router = useRouter()
+const store = useStore()
 
-// Para eliminar el paquete
-const eliminarPaquete = async (paqueteId, token) => {
+// Función para eliminar el paquete
+const eliminarPaquete = async () => {
   try {
-    if (!paqueteId) {
-      console.error('ID del paquete no disponible')
-      return
-    }
-    console.log('Paquete ID:', paqueteId)
-    await EliminarPaqueteId(paqueteId)
-    console.log('El paquete ha sido eliminado correctamente')
+    const token = store.getters.token // Obtener el token de Vuex para la autenticación
+    await EliminarPaqueteId(props.paquete.id, token) // Llamar a la API para eliminar el paquete
+
+    // Si la eliminación es exitosa, mostramos un mensaje y redirigimos
+    console.log('Paquete eliminado exitosamente')
+
+    // Redirigir a otra página (por ejemplo, la lista de paquetes)
+    router.push('/paquetes') // Cambia la ruta según tu lógica
   } catch (error) {
     console.error('Error al eliminar el paquete:', error)
-    alert('Hubo un error al intentar eliminar el paquete.')
   }
 }
 
-// Para cambiar el estado del paquete (Activar/Desactivar)
-const cambiarEstadoPaquete = async () => {
+const activarDesactivarPaquete = async (paquete) => {
   try {
-    if (!paqueteId) {
-      console.error('ID del paquete no disponible')
-      return
+    const response = await ActivarPaqueteId(paquete.id)
+    if (response) {
+      paquete.activo = paquete.activo === 1 ? 0 : 1
+      console.log(paquete.activo === 1 ? 'Paquete activado' : 'Paquete desactivado')
     }
-    console.log('Cambiando estado del paquete:', paqueteId) // Verifica el ID
-    await ActivarPaqueteId(paqueteId) // Llamada para activar/desactivar en la API
-    console.log('El estado del paquete ha sido cambiado')
   } catch (error) {
-    console.error('Error al cambiar estado del paquete:', error)
-    alert('Hubo un error al intentar cambiar el estado del paquete.')
+    console.error('Error al cambiar el estado del paquete:', error)
   }
-}
-
-// Ver el paquete
-const verPaquete = () => {
-  router.push(`/paquete/${paqueteId}`) // Redirige a la página de visualización del paquete
 }
 </script>
 
 <style scoped>
-.acciones-paquetes button {
-  margin-top: 10px;
+.btn-eliminar {
+  margin-top: 15px;
   padding: 10px 20px;
   background-color: #e74c3c;
   color: white;
@@ -67,7 +71,19 @@ const verPaquete = () => {
   cursor: pointer;
 }
 
-.acciones-paquetes button:hover {
+.btn-eliminar:hover {
   background-color: #c0392b;
+}
+
+.btn-activar {
+  margin-top: 15px;
+  padding: 10px 20px;
+  color: white;
+  border: none;
+  border-radius: 5px;
+}
+
+.btn-activar:hover {
+  opacity: 0.8;
 }
 </style>

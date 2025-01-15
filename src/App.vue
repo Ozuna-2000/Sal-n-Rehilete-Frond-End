@@ -12,10 +12,10 @@
           <li><a href="#contactanos">Contáctanos</a></li>
           <li v-if="!isAuthenticated"><router-link to="/login">Entrar</router-link></li>
           <li v-if="!isAuthenticated"><router-link to="/registrate">Regístrate</router-link></li>
-          <li v-if="isAuthenticated"><button @click="logout">Cerrar Sesión</button></li>
           <li v-if="isGerente">
-            <router-link to="/VistaGerente">Panel de control</router-link>
+            <router-link to="/ListaUsuarios">Usuarios</router-link>
           </li>
+          <li v-if="isAuthenticated"><button @click="logout">Cerrar Sesión</button></li>
         </ul>
       </nav>
     </header>

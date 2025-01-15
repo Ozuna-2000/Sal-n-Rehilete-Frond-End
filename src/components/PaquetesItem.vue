@@ -19,28 +19,8 @@
         <input type="number" v-model="paquete.precio" name="paquetePrecio" id="paquetePrecio" /> MXN
       </p>
 
-      <button @click="mostrarServicios = !mostrarServicios">
-        {{ mostrarServicios ? 'Ocultar Servicios' : 'Ver Servicios' }}
-      </button>
-
-      <div v-if="mostrarServicios" class="servicios-list">
-        <ul v-if="paquete.servicios && paquete.servicios.length">
-          <li v-for="servicio in paquete.servicios" :key="servicio.id">
-            <strong>{{ servicio.nombre }}</strong> : {{ servicio.descripcion }} - ${{
-              servicio.precio
-            }}
-            MXN
-          </li>
-        </ul>
-        <p v-else>No hay servicios disponibles en este paquete.</p>
-      </div>
-
       <button v-if="puedeEditar" @click="guardarPaquete(paquete.id)" class="btn-editar">
         Guardar
-      </button>
-
-      <button v-if="puedeEditar" @click="eliminarPaquete(paquete.id)" class="btn-eliminar">
-        Eliminar
       </button>
     </div>
 
@@ -51,40 +31,49 @@
       <p>Precio: {{ paquete.precio }} MXN</p>
       <p>id: {{ paquete.id }}</p>
 
-      <button @click="mostrarServicios = !mostrarServicios">
-        {{ mostrarServicios ? 'Ocultar Servicios' : 'Ver Servicios' }}
+      <button @click="mostrarServiciosPaquete = !mostrarServiciosPaquete">
+        {{ mostrarServiciosPaquete ? 'Ocultar Servicios' : 'Ver Servicios' }}
       </button>
 
-      <div v-if="mostrarServicios" class="servicios-list">
+      <div v-if="mostrarServiciosPaquete" class="servicios-list">
         <ul v-if="paquete.servicios && paquete.servicios.length">
-          <li v-for="servicio in paquete.servicios" :key="servicio.id">
+          <li v-for="(servicio, id) in paquete.servicios" :key="servicio.id">
             <strong>{{ servicio.nombre }}</strong> : {{ servicio.descripcion }} - ${{
               servicio.precio
             }}
             MXN
+            <button
+              @click="eliminarServicio(servicio.id)"
+              class="btn-eliminar-servicio"
+              title="Eliminar servicio de este paquete"
+            >
+              Eliminar
+            </button>
           </li>
         </ul>
         <p v-else>No hay servicios disponibles en este paquete.</p>
+
+        <button @click="mostrarServiciosList = !mostrarServiciosList">
+          {{ mostrarServiciosList ? 'Ocultar Servicios Disponibles' : 'Ver Servicios Disponibles' }}
+        </button>
+
+        <!-- Mostrar la lista de servicios disponibles cuando el gerente haga clic en "Agregar Servicio" -->
+        <div v-if="mostrarServiciosList" class="servicios-disponibles">
+          <ul v-if="serviciosDisponibles.length">
+            <li v-for="servicio in serviciosDisponibles" :key="servicio.id">
+              <strong>{{ servicio.nombre }}</strong
+              >: {{ servicio.descripcion }} - ${{ servicio.precio }} MXN
+              <button @click="agregarServicioAlPaquete(servicio.id)" class="btn-agregar-servicio">
+                Agregar
+              </button>
+            </li>
+          </ul>
+          <p v-else>No hay servicios disponibles.</p>
+        </div>
       </div>
 
       <button v-if="puedeEditar" @click="editarPaquete" class="btn-editar">Editar</button>
-
-      <button v-if="puedeEditar" @click="eliminarPaquete(paquete.id)" class="btn-eliminar">
-        Eliminar
-      </button>
     </div>
-
-    <!-- Botón de Activación -->
-    <button
-      :style="{ backgroundColor: paquete.activo === 1 ? 'green' : 'red' }"
-      @click="activarDesactivarPaquete(paquete)"
-      class="btn-activar"
-    >
-      {{ paquete.activo === 1 ? 'Paquete Activo' : 'Paquete Inactivo' }}
-    </button>
-
-    <!-- Agregamos un v-model para mantener el valor sincronizado -->
-    <input type="checkbox" v-model="paquete.activo" :true-value="1" :false-value="0" />
 
     <!-- Botón para ver/ocultar medios (DetallePaquete) -->
     <button @click="mostrarMedios = !mostrarMedios">
@@ -92,6 +81,8 @@
     </button>
 
     <DetallePaquete v-if="mostrarMedios" :paquete="paquete" />
+
+    <AccionesPaquetes :paquete="paquete" />
   </div>
   <p v-else>Cargando paquete...</p>
 </template>
@@ -100,12 +91,18 @@
 import { ref, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { useStore } from 'vuex' // Importamos el store
-import { obtenerPaquetePorId, actualizarPaquete } from '@/Apis/api'
+import {
+  obtenerPaquetePorId,
+  actualizarPaquete,
+  eliminarServicioPaquete,
+  mostrarServicios,
+  agregarServicioPaquete
+} from '@/Apis/api'
 import DetallePaquete from '@/components/DetallePaquete.vue' // Importar el componente DetallePaquete
 import AccionesPaquetes from './Gerente/AccionesPaquetes.vue'
-import { EliminarPaqueteId, ActivarPaqueteId } from '@/Apis/api'
 
 const store = useStore()
+const servicios = ref([])
 
 const editando = ref(false)
 const props = defineProps({
@@ -116,12 +113,13 @@ const props = defineProps({
 })
 
 const paquete = ref(props.paquete) // Inicializar con la prop del paquete
-const mostrarServicios = ref(false) // Mostrar/ocultar servicios
+const mostrarServiciosPaquete = ref(false) // Mostrar/ocultar servicios
 const mostrarMedios = ref(false) // Mostrar/ocultar medios (DetallePaquete)
 const puedeEditar = ref(true) // Determinar si el paquete se puede editar (puedes poner tu lógica aquí)
+const mostrarServiciosList = ref(false)
+const serviciosDisponibles = ref([])
 
 const router = useRoute()
-//const router = useRouter()
 const paqueteId = router.params.paqueteId
 
 // Función para cargar el paquete desde la API
@@ -144,7 +142,19 @@ onMounted(() => {
   if (!props.paquete) {
     cargarPaquete() // Cargar desde la API solo si no se pasa el paquete como prop
   }
+  obtenerServiciosDisponibles()
 })
+
+// Función para obtener los servicios disponibles
+const obtenerServiciosDisponibles = async () => {
+  try {
+    const servicios = await mostrarServicios() // Llamada a la función de API
+    console.log(servicios)
+    serviciosDisponibles.value = servicios
+  } catch (error) {
+    console.error('Error al obtener los servicios:', error)
+  }
+}
 
 const editarPaquete = () => {
   console.log('Empieza a editar el paquete:', paquete.value.nombre)
@@ -172,43 +182,47 @@ const guardarPaquete = async (idPaquete) => {
     console.error('Error al guardar el paquete:', error)
   }
 }
-
-// Función para eliminar el paquete
-const eliminarPaquete = async (idPaquete) => {
+const eliminarServicio = async (servicioId) => {
   try {
-    const token = store.getters.token // Obtener el token de Vuex para la autenticación
-    await EliminarPaqueteId(idPaquete, token) // Llamar a la API para eliminar el paquete
+    const paqueteId = paquete.value.id // <-- Obtener paqueteId desde el objeto paquete
+    await eliminarServicioPaquete(paqueteId, servicioId)
+    console.log(`Servicio con ID ${servicioId} eliminado del paquete ${paqueteId}.`)
+    paquete.value.servicios = paquete.value.servicios.filter(
+      (servicio) => servicio.id !== servicioId
+    )
 
-    // Si la eliminación es exitosa, mostramos un mensaje y redirigimos
-    console.log('Paquete eliminado exitosamente')
-
-    // Redirigir a otra página (por ejemplo, la lista de paquetes)
-    router.push('/paquetes') // Cambia la ruta según tu lógica
+    servicios.value = servicios.value.filter((servicio) => servicio.id !== servicioId)
   } catch (error) {
-    console.error('Error al eliminar el paquete:', error)
+    console.error('No se pudo eliminar el servicio:', error)
   }
 }
-
-// Función de activación/desactivación
-const activarDesactivarPaquete = async (paquete) => {
-  console.log('Paquete recibido:', paquete)
-
-  if (!paquete || !paquete.id) {
-    console.error('El paquete no tiene un id válido')
-    return
-  }
-
+const agregarServicioAlPaquete = async (servicioId) => {
   try {
-    const paqueteId = paquete.id
-    console.log('Activando/desactivando paquete con ID:', paqueteId)
-    const response = await ActivarPaqueteId(paqueteId)
+    // Encontramos el servicio que se quiere agregar desde la lista de servicios disponibles
+    const servicio = serviciosDisponibles.value.find((servicio) => servicio.id === servicioId)
 
-    if (response) {
-      paquete.activo = paquete.activo === 1 ? 0 : 1
-      console.log(paquete.activo === 1 ? 'Paquete activado' : 'Paquete desactivado')
+    if (!servicio) {
+      console.error('Servicio no encontrado')
+      return
+    }
+
+    const cantidad = 1
+
+    const respuesta = await agregarServicioPaquete(paquete.value.id, [servicio.id], [cantidad])
+
+    if (respuesta) {
+      // Si la respuesta es exitosa, agregamos el servicio al paquete
+      paquete.value.servicios.push(servicio)
+
+      // Eliminamos el servicio de la lista de servicios disponibles
+      serviciosDisponibles.value = serviciosDisponibles.value.filter(
+        (item) => item.id !== servicioId
+      )
+
+      console.log('Servicio agregado al paquete con éxito')
     }
   } catch (error) {
-    console.error('Error al cambiar el estado del paquete:', error)
+    console.error('Error al agregar servicio al paquete:', error)
   }
 }
 </script>
@@ -298,5 +312,24 @@ const activarDesactivarPaquete = async (paquete) => {
 
 .btn-activar:hover {
   opacity: 0.8;
+}
+
+.btn-eliminar-servicio {
+  margin-left: 10px;
+  padding: 5px 10px;
+  background-color: #e74c3c;
+  color: white;
+  border: none;
+  border-radius: 3px;
+  cursor: pointer;
+}
+
+.btn-eliminar-servicio:hover {
+  background-color: #c0392b;
+}
+
+.btn-agregar-servicio {
+  background-color: #2ecc71;
+  color: white;
 }
 </style>

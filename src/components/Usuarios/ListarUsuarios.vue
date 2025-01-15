@@ -140,7 +140,6 @@ const agregarUsuario = async () => {
   }
 
   try {
-    // Formatear la fecha antes de enviarla
     const fechaFormateada = formatearFecha(nuevoUsuario.value.fecha_nacimiento)
     nuevoUsuario.value.fecha_nacimiento = fechaFormateada
 
