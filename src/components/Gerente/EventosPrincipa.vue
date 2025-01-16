@@ -14,7 +14,7 @@
 
       <!-- Campo para seleccionar usuario -->
       <h2><label for="usuario" class="label">Seleccionar Usuario:</label></h2>
-      <select id="usuario" v-model="usuarioId" class="input">
+      <select id="usuario" v-model="usuario_id" class="input">
         <option value="" disabled>Seleccione un usuario</option>
         <option v-for="usuario in usuarios" :key="usuario.id" :value="usuario.id">
           {{ usuario.nombre }}
@@ -23,7 +23,7 @@
       <br />
 
       <h2><label for="paquete" class="label">Seleccionar un paquete</label></h2>
-      <select id="paquete" v-model="paqueteId" class="input">
+      <select id="paquete" v-model="paquete_id" class="input">
         <option value="" disabled>Seleccione un paquete</option>
         <option v-for="paquete in paquetes" :key="paquete.id" :value="paquete.id">
           {{ paquete.nombre }}
@@ -31,7 +31,7 @@
       </select>
       <h2><label for="precio" class="label">Precio</label></h2>
       <input
-        type="numer"
+        type="number"
         id="precio"
         v-model="precio"
         class="input"
@@ -40,10 +40,10 @@
       <h2><label for="fecha" class="label">Fecha del Evento:</label></h2>
       <input type="date" id="fecha" v-model="fecha" class="input" />
       <h2><label for="hora_inicio" class="label">Hora de Inicio:</label></h2>
-      <input type="time" id="hora_inicio" v-model="horaInicio" class="input" />
+      <input type="time" id="hora_inicio" v-model="hora_inicio" class="input" />
 
       <h2><label for="hora_fin" class="label">Hora de Fin:</label></h2>
-      <input type="time" id="hora_fin" v-model="horaFin" class="input" />
+      <input type="time" id="hora_fin" v-model="hora_fin" class="input" />
 
       <h2><label for="descripcion" class="label">Descripción del Evento:</label></h2>
       <textarea
@@ -57,11 +57,13 @@
       <input
         type="number"
         id="num_personas"
-        v-model="numPersonas"
+        v-model="num_personas"
         class="input"
         placeholder="Número estimado de asistentes"
       />
+      <button @click="crearEvento" class="btn-crear">Crear Evento</button>
     </div>
+
     <div v-if="error" class="error">{{ error }}</div>
     <ul class="eventos-lista" v-else>
       <li v-for="evento in eventos" :key="evento.id" class="evento-item">
@@ -73,26 +75,33 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
-import { mostrarPaquetes, obtenerEventos, obtenerUsuarios } from '@/Apis/api'
+import { useStore } from 'vuex'
+import { mostrarPaquetes, obtenerEventos, obtenerUsuarios, CrearEvento } from '@/Apis/api'
 import EventosItem from '../Usuarios/EventosItem.vue'
 
-// Variables reactivas
+const store = useStore()
 const eventos = ref([])
-const usuarios = ref([]) // Lista de usuarios
+const usuarios = ref([])
 const paquetes = ref([])
 const error = ref(null)
-const nombre = ref('') // Campo para el nombre del evento
-const usuarioId = ref('') // Campo para seleccionar usuario
-const paqueteId = ref('')
+const nombre = ref('')
+const usuario_id = ref('')
+const paquete_id = ref('')
+const precio = ref('')
+const fecha = ref('')
+const hora_inicio = ref('')
+const hora_fin = ref('')
+const descripcion = ref('')
+const num_personas = ref('')
+const confirmacion = ref('')
 
-// Llamada a la API para obtener los eventos
 const fetchEventos = async () => {
   try {
     const token = 'TU_BEARER_TOKEN_AQUÍ'
-    const eventosData = await obtenerEventos(token) // Llama a la función para obtener eventos
+    const eventosData = await obtenerEventos(token)
     eventos.value = eventosData.map((evento) => ({
       ...evento,
-      mostrarServicios: false // Añadimos un campo para mostrar u ocultar los servicios
+      mostrarServicios: false
     }))
   } catch (err) {
     error.value = 'No se pudieron cargar los eventos.'
@@ -100,11 +109,10 @@ const fetchEventos = async () => {
   }
 }
 
-// Llamada a la API para obtener los usuarios
 const fetchUsuarios = async () => {
   try {
     const token = 'TU_BEARER_TOKEN_AQUÍ'
-    const usuariosData = await obtenerUsuarios(token) // Llama a la función para obtener usuarios
+    const usuariosData = await obtenerUsuarios(token)
     usuarios.value = usuariosData
   } catch (err) {
     error.value = 'No se pudieron cargar los usuarios.'
@@ -123,12 +131,49 @@ const fetchPaquetes = async () => {
   }
 }
 
-// Obtener los eventos y usuarios cuando el componente se monta
 onMounted(() => {
   fetchEventos()
   fetchUsuarios()
   fetchPaquetes()
 })
+
+// Función para crear el evento
+const crearEvento = async () => {
+  try {
+    const token = store.getters.token
+    const data = {
+      nombre: nombre.value,
+      usuario_id: usuario_id.value,
+      paquete_id: paquete_id.value,
+      precio: precio.value,
+      fecha: fecha.value,
+      hora_inicio: hora_inicio.value,
+      hora_fin: hora_fin.value,
+      descripcion: descripcion.value,
+      num_personas: num_personas.value,
+      confirmacion: confirmacion.value
+    }
+
+    const Nuevo_Evento = await CrearEvento(data, token)
+
+    if (Nuevo_Evento) {
+      eventos.value.push(Nuevo_Evento) // Agrega el paquete a la lista
+      console.log('Nuevo paquete agregado:', Nuevo_Evento)
+      ;(nombre.value = ''),
+        (usuario_id.value = ''),
+        (paquete_id.value = ''),
+        (precio.value = ''),
+        (fecha.value = ''),
+        (hora_inicio.value = ''),
+        (hora_fin.value = ''),
+        (descripcion.value = ''),
+        (num_personas.value = '')
+    }
+  } catch (err) {
+    error.value = 'No se pudo crear el evento'
+    console.error(err)
+  }
+}
 </script>
 
 <style scoped>
@@ -139,7 +184,6 @@ onMounted(() => {
   background-color: #fff;
   border-radius: 12px;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
-
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
@@ -159,7 +203,6 @@ onMounted(() => {
   font-weight: bold;
 }
 
-/* Estilo para el contenedor del input */
 .input-container {
   width: 100%;
   max-width: 600px;
@@ -195,8 +238,8 @@ onMounted(() => {
   padding: 0;
   width: 100%;
   display: flex;
-  flex-direction: column; /* Eventos dispuestos verticalmente */
-  gap: 30px; /* Espacio entre los eventos */
+  flex-direction: column;
+  gap: 30px;
 }
 
 .evento-item {
@@ -241,5 +284,22 @@ body {
   justify-content: center;
   align-items: center;
   height: 100vh;
+}
+
+/* Estilo del botón */
+.btn-crear {
+  background-color: #28a745;
+  color: #fff;
+  border: none;
+  padding: 15px 30px;
+  font-size: 1.2rem;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  margin-top: 30px;
+}
+
+.btn-crear:hover {
+  background-color: #218838;
 }
 </style>

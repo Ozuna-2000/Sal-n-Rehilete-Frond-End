@@ -475,3 +475,17 @@ export const agregarServicioPaquete = async (paqueteId, servicios, cantidades) =
     throw error
   }
 }
+
+export const CrearEvento = async (data, token) => {
+  try {
+    const response = await axios.post(`${url}/api/eventos`, data, {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    })
+    console.log('Evento creado  con éxito:', response.data)
+    return response.data
+  } catch (error) {
+    console.log('Error al Crear el evento', error.response ? error.response.data : error)
+  }
+}
