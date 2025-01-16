@@ -8,6 +8,7 @@
     <p><strong>Precio:</strong> ${{ evento.precio }}</p>
     <p><strong>Número de Personas:</strong> {{ evento.num_personas }}</p>
     <p><strong>Paquete:</strong> {{ evento.paquete_id }}</p>
+    <p><strong>confirmacion:</strong>{{ evento.confirmacion }}</p>
 
     <!-- Botón para mostrar los servicios -->
     <button @click="toggleServicios">
