@@ -1,5 +1,8 @@
 <template>
   <div class="evento-item">
+    <!-- Botón de eliminar en la esquina superior derecha -->
+    <button class="eliminar-evento" @click="eliminarEvento(evento.id)">Eliminar Evento</button>
+
     <h2>{{ evento.nombre }}</h2>
     <p>{{ evento.descripcion }}</p>
     <p><strong>Fecha:</strong> {{ evento.fecha }}</p>
@@ -11,7 +14,7 @@
     <p><strong>Confirmación:</strong> {{ evento.confirmacion }}</p>
 
     <button @click="toggleServicios">
-      {{ mostrarServiciosSistema ? 'Ocultar Servicios' : 'Ver Servicios' }}
+      {{ mostrarServiciosSistema ? 'Ocultar Servicios' : 'Ver Servicios Extras' }}
     </button>
 
     <!-- Lista de servicios del evento -->
@@ -21,33 +24,18 @@
       </li>
     </ul>
 
-    <!-- Mensaje cuando no hay servicios disponibles -->
     <p v-else-if="mostrarServiciosSistema && (!evento.servicios || evento.servicios.length === 0)">
       No hay servicios disponibles para este evento.
     </p>
-
-    <!-- Botón para agregar servicios -->
-    <button v-if="mostrarServiciosSistema" @click="toggleAgregarServicios">
-      {{ mostrarAgregarServicios ? 'Ocultar Agregar Servicios' : 'Agregar Servicios' }}
-    </button>
-
-    <!-- Select para mostrar los servicios del sistema -->
-    <div v-if="mostrarServiciosSistema && mostrarAgregarServicios && serviciosSistema.length > 0">
-      <h3>Seleccionar un Servicio:</h3>
-      <select v-model="servicioSeleccionado">
-        <option value="" disabled>Seleccione un servicio</option>
-        <option v-for="(servicio, index) in serviciosSistema" :key="index" :value="servicio">
-          {{ servicio.nombre }} - ${{ servicio.precio }}
-        </option>
-      </select>
-      <button @click="asignarServicio">Agregar Servicio</button>
-    </div>
   </div>
 </template>
 
 <script setup>
 import { ref } from 'vue'
-import { mostrarServicios } from '@/Apis/api'
+import { EliminarEventoId } from '@/Apis/apis_eventos'
+import { useStore } from 'vuex'
+
+const emit = defineEmits(['evento-eliminado'])
 
 defineProps({
   evento: {
@@ -56,37 +44,25 @@ defineProps({
   }
 })
 
-const mostrarServiciosSistema = ref(false) // Controla si se muestran los servicios
-const mostrarAgregarServicios = ref(false) // Controla si se muestra el contenido de "Agregar Servicios"
-const serviciosSistema = ref([]) // Servicios disponibles del sistema
-const servicioSeleccionado = ref(null) // Servicio seleccionado por el usuario
+const store = useStore()
+const mostrarServiciosSistema = ref(false)
 
+// Mostrar u ocultar los servicios del evento
 const toggleServicios = () => {
   mostrarServiciosSistema.value = !mostrarServiciosSistema.value
-  if (!mostrarServiciosSistema.value) {
-    mostrarAgregarServicios.value = false // Asegura que también se oculte "Agregar Servicios"
-  }
 }
 
-const toggleAgregarServicios = async () => {
-  mostrarAgregarServicios.value = !mostrarAgregarServicios.value
-  if (mostrarAgregarServicios.value && serviciosSistema.value.length === 0) {
-    try {
-      const servicios = await mostrarServicios()
-      serviciosSistema.value = servicios
-    } catch (error) {
-      console.error('Error al desplegar servicios del sistema:', error)
-    }
-  }
-}
+const eliminarEvento = async (eventoId) => {
+  try {
+    const token = store.getters.token
+    await EliminarEventoId(eventoId, token)
 
-// Función para asignar un servicio al evento
-const asignarServicio = () => {
-  if (servicioSeleccionado.value) {
-    evento.servicios = [...(evento.servicios || []), servicioSeleccionado.value]
-    servicioSeleccionado.value = null // Reiniciar selección
-  } else {
-    alert('Seleccione un servicio antes de agregar.')
+    console.log('El evento se eliminó')
+
+    // Emitir el evento hacia el componente principal
+    emit('evento-eliminado', eventoId) // Aquí estamos pasando el ID del evento eliminado
+  } catch (error) {
+    console.error('Error al eliminar el evento', error)
   }
 }
 </script>
@@ -106,6 +82,7 @@ const asignarServicio = () => {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+  position: relative; /* Necesario para posicionar el botón eliminar */
 }
 
 .evento-item h2 {
@@ -120,6 +97,26 @@ const asignarServicio = () => {
   font-size: 1.1rem;
   color: #555;
   margin: 8px 0;
+}
+
+/* Botón de eliminar */
+.eliminar-evento {
+  position: absolute;
+  top: 10px;
+  right: 10px; /* Cambiado a la derecha */
+  padding: 8px 12px;
+  cursor: pointer;
+  background-color: #e74c3c;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  font-weight: bold;
+  transition: background-color 0.3s ease;
+}
+
+.eliminar-evento:hover {
+  background-color: #c0392b;
 }
 
 button {

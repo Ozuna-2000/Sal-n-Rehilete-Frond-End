@@ -67,7 +67,7 @@ export const AgregarPaquete = async (data, token) => {
     console.log('Error al cargar el paquete:', error.response ? error.response.data : error)
   }
 }
-// Petion de prueba para ver si obtiene las imagenes
+
 export const obtenerMediosPaquete = async (idPaquete, token) => {
   const response = await axios.get(`http://127.0.0.1:8000/api/paquetes/${idPaquete}/medios`, {
     headers: {
@@ -77,7 +77,6 @@ export const obtenerMediosPaquete = async (idPaquete, token) => {
   return response.data
 }
 
-//Peticion de la api para el registro de un nuevo usuario " es auntoregistro no require token"
 export const registrarUsuarioApi = async (data) => {
   try {
     const response = await axios.post('http://127.0.0.1:8000/api/usuarios/registrar', data)
@@ -87,7 +86,7 @@ export const registrarUsuarioApi = async (data) => {
     throw error
   }
 }
-// Funcion par obtener los usuarios existentes, "Esto lo hace el gerente por lo que requiere un token "
+
 export const obtenerUsuarios = async () => {
   try {
     const token = store.state.token

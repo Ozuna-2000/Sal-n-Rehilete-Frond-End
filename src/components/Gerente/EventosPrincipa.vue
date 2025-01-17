@@ -12,7 +12,6 @@
         placeholder="Ingresa el nombre del evento"
       /><br />
 
-      <!-- Campo para seleccionar usuario -->
       <h2><label for="usuario" class="label">Seleccionar Usuario:</label></h2>
       <select id="usuario" v-model="usuario_id" class="input">
         <option value="" disabled>Seleccione un usuario</option>
@@ -95,7 +94,12 @@
     <div v-if="error" class="error">{{ error }}</div>
     <ul class="eventos-lista" v-else>
       <li v-for="evento in eventos" :key="evento.id" class="evento-item">
-        <EventosItem :evento="evento" />
+        <EventosItem
+          :evento="evento"
+          v-for="evento in eventos"
+          :key="evento.id"
+          @evento-eliminado="handleEventoEliminado"
+        />
       </li>
     </ul>
   </div>
@@ -131,6 +135,10 @@ const hora_fin = ref('')
 const descripcion = ref('')
 const num_personas = ref('')
 const confirmacion = ref('')
+
+const handleEventoEliminado = (eventoId) => {
+  eventos.value = eventos.value.filter((evento) => evento.id !== eventoId)
+}
 
 const fetchEventos = async () => {
   try {
