@@ -7,14 +7,25 @@
           <li><router-link to="/">Inicio</router-link></li>
           <li><router-link to="/paquetes">Paquetes</router-link></li>
           <li><router-link to="/servicios">Servicios</router-link></li>
-          <li><router-link to="/eventos">Eventos</router-link></li>
+
+          <!-- Mostrar solo si el usuario está autenticado -->
+          <li v-if="isAuthenticated">
+            <router-link to="/eventos">Eventos</router-link>
+          </li>
+
           <li><a href="#conocenos">Conócenos</a></li>
           <li><a href="#contactanos">Contáctanos</a></li>
+
+          <!-- Mostrar opciones de inicio de sesión y registro solo si el usuario no está autenticado -->
           <li v-if="!isAuthenticated"><router-link to="/login">Entrar</router-link></li>
           <li v-if="!isAuthenticated"><router-link to="/registrate">Regístrate</router-link></li>
+
+          <!-- Mostrar solo si el usuario tiene el rol de "Gerente" -->
           <li v-if="isGerente">
             <router-link to="/ListaUsuarios">Usuarios</router-link>
           </li>
+
+          <!-- Mostrar botón de cerrar sesión solo si el usuario está autenticado -->
           <li v-if="isAuthenticated"><button @click="logout">Cerrar Sesión</button></li>
         </ul>
       </nav>
@@ -31,10 +42,10 @@
 <script setup>
 import { computed } from 'vue'
 import { useStore } from 'vuex'
-import { useRouter } from 'vue-router' // Importa el router
+import { useRouter } from 'vue-router'
 
 const store = useStore()
-const router = useRouter() // Crea una instancia del router
+const router = useRouter()
 
 const isAuthenticated = computed(() => store.getters.isAuthenticated)
 const userRole = computed(() => store.getters.userRole)
@@ -50,43 +61,42 @@ const logout = () => {
 <style scoped>
 /* Estilos generales para la barra de navegación */
 .navbar {
-  background-color: #333; /* Color de fondo de la barra */
-  overflow: hidden; /* Evita que el contenido se desborde */
-  width: 100%; /* Ocupa el ancho completo de la pantalla */
-  position: fixed; /* Fija la barra en la parte superior */
-  top: 0; /* Se alinea al borde superior */
-  left: 0; /* Se alinea al borde izquierdo */
-  z-index: 1000; /* Asegura que esté por encima de otros elementos */
+  background-color: #333;
+  overflow: hidden;
+  width: 100%;
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 1000;
 }
 
 .navbar nav ul {
-  list-style-type: none; /* Elimina los puntos de la lista */
-  margin: 0; /* Elimina el margen por defecto */
-  padding: 0; /* Elimina el padding por defecto */
-  display: flex; /* Muestra los elementos de la lista en línea */
-  justify-content: space-around; /* Espaciado uniforme entre elementos */
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  justify-content: space-around;
 }
 
 .navbar nav ul li {
-  float: left; /* Alinea los elementos a la izquierda */
+  float: left;
 }
 
 .navbar nav ul li a,
 .navbar nav ul li button {
-  display: block; /* Hace que el enlace sea un bloque */
-  color: white; /* Color del texto */
-  text-align: center; /* Centra el texto dentro del enlace */
-  padding: 14px 16px; /* Espaciado dentro del enlace */
-  text-decoration: none; /* Elimina el subrayado del enlace */
+  display: block;
+  color: white;
+  text-align: center;
+  padding: 14px 16px;
+  text-decoration: none;
 }
 
 .navbar nav ul li a:hover,
 .navbar nav ul li button:hover {
-  background-color: #575757; /* Color de fondo al pasar el mouse */
+  background-color: #575757;
 }
 
-/* Agrega un margen superior al contenido principal para que no quede oculto detrás de la barra */
 main {
-  margin-top: 60px; /* Ajusta este valor según la altura de tu barra de navegación */
+  margin-top: 60px;
 }
 </style>

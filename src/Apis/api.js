@@ -482,9 +482,9 @@ export const CrearEvento = async (data, token) => {
         Authorization: `Bearer ${token}`
       }
     })
-    console.log('Evento creado  con éxito:', response.data)
+    console.log('Evento creado con éxito:', response.data)
     return response.data
   } catch (error) {
-    console.log('Error al Crear el evento', error.response ? error.response.data : error)
+    console.log('Error al crear el evento', error.response ? error.response.data : error)
   }
 }

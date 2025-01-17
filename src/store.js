@@ -57,7 +57,6 @@ export default createStore({
     // Obtener el rol del usuario
     userRole: (state) => state.role,
 
-    // Verificar si el rol es 'Gerente'
     isGerente: (state) => state.role === 'Gerente',
 
     // Obtener el token

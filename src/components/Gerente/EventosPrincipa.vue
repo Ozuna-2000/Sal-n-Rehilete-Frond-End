@@ -12,8 +12,9 @@
         placeholder="Ingresa el nombre del evento"
       /><br />
 
-      <h2><label for="usuario" class="label">Seleccionar Usuario:</label></h2>
-      <select id="usuario" v-model="usuario_id" class="input">
+      <!-- Solo renderizar el campo de usuario si no es cliente -->
+      <h2 v-if="!esCliente"><label for="usuario" class="label">Seleccionar Usuario:</label></h2>
+      <select v-if="!esCliente" id="usuario" v-model="usuario_id" class="input">
         <option value="" disabled>Seleccione un usuario</option>
         <option v-for="usuario in usuarios" :key="usuario.id" :value="usuario.id">
           {{ usuario.nombre }}
@@ -29,13 +30,14 @@
         </option>
       </select>
 
-      <h2><label for="precio" class="label">Precio</label></h2>
+      <h2 v-if="!esCliente"><label for="precio" class="label">Precio</label></h2>
       <input
         type="number"
         id="precio"
         v-model="precio"
         class="input"
         placeholder="Ingresa el precio"
+        v-if="!esCliente"
       />
 
       <h2><label for="fecha" class="label">Fecha del Evento:</label></h2>
@@ -44,8 +46,9 @@
       <h2><label for="hora_inicio" class="label">Hora de Inicio:</label></h2>
       <input type="time" id="hora_inicio" v-model="hora_inicio" class="input" />
 
-      <h2><label for="hora_fin" class="label">Hora de Fin:</label></h2>
-      <input type="time" id="hora_fin" v-model="hora_fin" class="input" />
+      <!-- Solo renderizar el campo de hora_fin si no es cliente -->
+      <h2 v-if="!esCliente"><label for="hora_fin" class="label">Hora de Fin:</label></h2>
+      <input type="time" id="hora_fin" v-model="hora_fin" class="input" v-if="!esCliente" />
 
       <h2><label for="descripcion" class="label">Descripción del Evento:</label></h2>
       <textarea
@@ -116,6 +119,7 @@ import {
   mostrarServicios
 } from '@/Apis/api'
 import EventosItem from '../Usuarios/EventosItem.vue'
+import { computed } from 'vue'
 
 const store = useStore()
 const eventos = ref([])
@@ -126,15 +130,26 @@ const serviciosSeleccionados = ref([]) // Lista de servicios seleccionados
 const servicioSeleccionado = ref(null) // Servicio seleccionado en el momento
 const error = ref(null)
 const nombre = ref('')
-const usuario_id = ref('')
-const paquete_id = ref('')
+const usuario_id = ref(null) // Inicializar con null
+const paquete_id = ref(null) // Inicializar con null
 const precio = ref('')
 const fecha = ref('')
 const hora_inicio = ref('')
-const hora_fin = ref('')
+const hora_fin = ref('') // Inicializar con cadena vacía
 const descripcion = ref('')
 const num_personas = ref('')
 const confirmacion = ref('')
+
+const rolUsuario = computed(() => {
+  const rol = store.getters.userRole // Cambié 'rol' por 'userRole'
+  console.log('Rol del usuario:', rol)
+  return rol
+})
+
+const esCliente = computed(() => {
+  console.log('¿Es Cliente?', rolUsuario.value === 'Cliente')
+  return rolUsuario.value === 'Cliente'
+})
 
 const handleEventoEliminado = (eventoId) => {
   eventos.value = eventos.value.filter((evento) => evento.id !== eventoId)
@@ -142,11 +157,22 @@ const handleEventoEliminado = (eventoId) => {
 
 const fetchEventos = async () => {
   try {
-    const token = 'TU_BEARER_TOKEN_AQUÍ'
+    // Obtén el token desde Vuex (o donde lo estés almacenando)
+    const token = store.getters.token
+
+    // Verifica si hay un token disponible
+    if (!token) {
+      error.value = 'No estás autenticado. Por favor, inicia sesión.'
+      return
+    }
+
+    // Llama a la función `obtenerEventos` pasando el token
     const eventosData = await obtenerEventos(token)
+
+    // Procesa los eventos obtenidos
     eventos.value = eventosData.map((evento) => ({
       ...evento,
-      mostrarServicios: false
+      mostrarServicios: false // Inicializa la propiedad para controlar la vista de servicios
     }))
   } catch (err) {
     error.value = 'No se pudieron cargar los eventos.'
@@ -156,6 +182,15 @@ const fetchEventos = async () => {
 
 const fetchUsuarios = async () => {
   try {
+    const store = useStore()
+    const rolUsuario = store.state.rol
+
+    if (rolUsuario !== 'gerente') {
+      console.log('Acción denegada: Solo el gerente puede ver los usuarios.')
+      return
+    }
+
+    // Si es gerente, proceder con la solicitud
     const token = 'TU_BEARER_TOKEN_AQUÍ'
     const usuariosData = await obtenerUsuarios(token)
     usuarios.value = usuariosData
@@ -167,7 +202,7 @@ const fetchUsuarios = async () => {
 
 const fetchPaquetes = async () => {
   try {
-    const token = 'TU_BEARER_TOKEN_AQUI'
+    const token = 'TU_BEARER_TOKEN_AQUÍ'
     const paquetesData = await mostrarPaquetes(token)
     paquetes.value = paquetesData
   } catch (err) {
@@ -178,7 +213,7 @@ const fetchPaquetes = async () => {
 
 const fetchServicios = async () => {
   try {
-    const token = 'TU_BEARER_TOKEN_AQUI'
+    const token = 'TU_BEARER_TOKEN_AQUÍ'
     const serviciosData = await mostrarServicios(token)
     serviciosDisponibles.value = serviciosData
   } catch (err) {
@@ -212,40 +247,52 @@ const eliminarServicio = (index) => {
 
 const crearEvento = async () => {
   try {
+    // Verifica si el usuario está autenticado obteniendo el token
     const token = store.getters.token
+
+    if (!token) {
+      throw new Error('El usuario no está autenticado. Por favor, inicia sesión.')
+    }
+
     const data = {
       nombre: nombre.value,
-      usuario_id: usuario_id.value,
-      paquete_id: paquete_id.value,
+      usuario_id: usuario_id.value || null, // Asegurarse de que sea null si no se ha seleccionado
+      paquete_id: paquete_id.value || null, // Asegurarse de que sea null si no se ha seleccionado
       precio: precio.value,
       fecha: fecha.value,
       hora_inicio: hora_inicio.value,
-      hora_fin: hora_fin.value,
+      hora_fin: hora_fin.value || null, // Asegurarse de que sea null si no se ha ingresado
       descripcion: descripcion.value,
       num_personas: num_personas.value,
-      confirmacion: confirmacion.value,
+      confirmacion: confirmacion,
       servicios: serviciosSeleccionados.value.map((servicio) => servicio.id)
     }
 
-    const nuevoEvento = await CrearEvento(data, token)
+    // Llamada a la API para crear el evento
+    await CrearEvento(data, token)
 
-    if (nuevoEvento) {
-      eventos.value.push(nuevoEvento) // Agrega el nuevo evento a la lista
-      // Limpiar campos
-      nombre.value = ''
-      usuario_id.value = ''
-      paquete_id.value = ''
-      precio.value = ''
-      fecha.value = ''
-      hora_inicio.value = ''
-      hora_fin.value = ''
-      descripcion.value = ''
-      num_personas.value = ''
-      serviciosSeleccionados.value = [] // Limpiar servicios seleccionados
-    }
+    // Limpiar los valores después de la creación exitosa
+    nombre.value = ''
+    usuario_id.value = null
+    paquete_id.value = null
+    precio.value = ''
+    fecha.value = ''
+    hora_inicio.value = ''
+    hora_fin.value = ''
+    descripcion.value = ''
+    num_personas.value = ''
+    serviciosSeleccionados.value = []
+    fetchEventos() // Recargar los eventos después de la creación
+
+    console.log('Evento creado exitosamente')
   } catch (err) {
-    error.value = 'No se pudo crear el evento.'
-    console.error(err)
+    // Manejar errores
+    if (err.message === 'El usuario no está autenticado. Por favor, inicia sesión.') {
+      error.value = err.message
+    } else {
+      error.value = 'Hubo un error al crear el evento.'
+    }
+    console.error('Error:', err)
   }
 }
 </script>
