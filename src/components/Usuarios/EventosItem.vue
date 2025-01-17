@@ -8,24 +8,46 @@
     <p><strong>Precio:</strong> ${{ evento.precio }}</p>
     <p><strong>Número de Personas:</strong> {{ evento.num_personas }}</p>
     <p><strong>Paquete:</strong> {{ evento.paquete_id }}</p>
-    <p><strong>confirmacion:</strong>{{ evento.confirmacion }}</p>
+    <p><strong>Confirmación:</strong> {{ evento.confirmacion }}</p>
 
-    <!-- Botón para mostrar los servicios -->
     <button @click="toggleServicios">
-      {{ mostrarServicios ? 'Ocultar Servicios' : 'Ver Servicios' }}
+      {{ mostrarServiciosSistema ? 'Ocultar Servicios' : 'Ver Servicios' }}
     </button>
 
     <!-- Lista de servicios del evento -->
-    <ul v-if="mostrarServicios">
+    <ul v-if="mostrarServiciosSistema && evento.servicios && evento.servicios.length > 0">
       <li v-for="(servicio, index) in evento.servicios" :key="index">
         {{ servicio.nombre }} - ${{ servicio.precio }}
       </li>
     </ul>
+
+    <!-- Mensaje cuando no hay servicios disponibles -->
+    <p v-else-if="mostrarServiciosSistema && (!evento.servicios || evento.servicios.length === 0)">
+      No hay servicios disponibles para este evento.
+    </p>
+
+    <!-- Botón para agregar servicios -->
+    <button v-if="mostrarServiciosSistema" @click="toggleAgregarServicios">
+      {{ mostrarAgregarServicios ? 'Ocultar Agregar Servicios' : 'Agregar Servicios' }}
+    </button>
+
+    <!-- Select para mostrar los servicios del sistema -->
+    <div v-if="mostrarServiciosSistema && mostrarAgregarServicios && serviciosSistema.length > 0">
+      <h3>Seleccionar un Servicio:</h3>
+      <select v-model="servicioSeleccionado">
+        <option value="" disabled>Seleccione un servicio</option>
+        <option v-for="(servicio, index) in serviciosSistema" :key="index" :value="servicio">
+          {{ servicio.nombre }} - ${{ servicio.precio }}
+        </option>
+      </select>
+      <button @click="asignarServicio">Agregar Servicio</button>
+    </div>
   </div>
 </template>
 
 <script setup>
 import { ref } from 'vue'
+import { mostrarServicios } from '@/Apis/api'
 
 defineProps({
   evento: {
@@ -34,10 +56,38 @@ defineProps({
   }
 })
 
-const mostrarServicios = ref(false)
+const mostrarServiciosSistema = ref(false) // Controla si se muestran los servicios
+const mostrarAgregarServicios = ref(false) // Controla si se muestra el contenido de "Agregar Servicios"
+const serviciosSistema = ref([]) // Servicios disponibles del sistema
+const servicioSeleccionado = ref(null) // Servicio seleccionado por el usuario
 
 const toggleServicios = () => {
-  mostrarServicios.value = !mostrarServicios.value
+  mostrarServiciosSistema.value = !mostrarServiciosSistema.value
+  if (!mostrarServiciosSistema.value) {
+    mostrarAgregarServicios.value = false // Asegura que también se oculte "Agregar Servicios"
+  }
+}
+
+const toggleAgregarServicios = async () => {
+  mostrarAgregarServicios.value = !mostrarAgregarServicios.value
+  if (mostrarAgregarServicios.value && serviciosSistema.value.length === 0) {
+    try {
+      const servicios = await mostrarServicios()
+      serviciosSistema.value = servicios
+    } catch (error) {
+      console.error('Error al desplegar servicios del sistema:', error)
+    }
+  }
+}
+
+// Función para asignar un servicio al evento
+const asignarServicio = () => {
+  if (servicioSeleccionado.value) {
+    evento.servicios = [...(evento.servicios || []), servicioSeleccionado.value]
+    servicioSeleccionado.value = null // Reiniciar selección
+  } else {
+    alert('Seleccione un servicio antes de agregar.')
+  }
 }
 </script>
 
@@ -52,13 +102,12 @@ const toggleServicios = () => {
   transition:
     transform 0.3s ease,
     box-shadow 0.3s ease;
-  min-height: 300px; /* Asegura que los eventos sean más largos */
+  min-height: 300px;
   display: flex;
   flex-direction: column;
-  justify-content: space-between; /* Asegura que el contenido se distribuya en el espacio disponible */
+  justify-content: space-between;
 }
 
-/* Aumentamos el tamaño de los encabezados */
 .evento-item h2 {
   font-size: 1.8rem;
   color: #333;
@@ -67,14 +116,12 @@ const toggleServicios = () => {
   font-weight: bold;
 }
 
-/* Estilo para los párrafos dentro de cada evento */
 .evento-item p {
   font-size: 1.1rem;
   color: #555;
   margin: 8px 0;
 }
 
-/* Estilo para el botón */
 button {
   margin-top: 15px;
   padding: 8px 15px;
@@ -90,16 +137,16 @@ button:hover {
   background-color: #2980b9;
 }
 
-/* Lista de servicios */
-ul {
-  list-style: none;
-  padding-left: 0;
-  margin-top: 10px;
+select {
+  margin-top: 15px;
+  padding: 8px 15px;
+  font-size: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
 }
 
-li {
-  font-size: 1rem;
-  color: #333;
-  margin-bottom: 5px;
+select:focus {
+  outline: none;
+  border-color: #3498db;
 }
 </style>

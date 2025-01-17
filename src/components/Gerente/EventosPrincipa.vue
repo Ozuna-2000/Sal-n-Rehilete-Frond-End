@@ -29,6 +29,7 @@
           {{ paquete.nombre }}
         </option>
       </select>
+
       <h2><label for="precio" class="label">Precio</label></h2>
       <input
         type="number"
@@ -37,8 +38,10 @@
         class="input"
         placeholder="Ingresa el precio"
       />
+
       <h2><label for="fecha" class="label">Fecha del Evento:</label></h2>
       <input type="date" id="fecha" v-model="fecha" class="input" />
+
       <h2><label for="hora_inicio" class="label">Hora de Inicio:</label></h2>
       <input type="time" id="hora_inicio" v-model="hora_inicio" class="input" />
 
@@ -53,6 +56,7 @@
         placeholder="Ingresa una breve descripción del evento"
         rows="4"
       ></textarea>
+
       <h2><label for="num_personas" class="label">Número de Personas:</label></h2>
       <input
         type="number"
@@ -61,6 +65,30 @@
         class="input"
         placeholder="Número estimado de asistentes"
       />
+
+      <h2><label for="servicio" class="label">Seleccionar servicios extra:</label></h2>
+      <select
+        id="servicio"
+        v-model="servicioSeleccionado"
+        class="input select-servicio"
+        @change="agregarServicio"
+      >
+        <option value="" disabled>Seleccione un servicio</option>
+        <option v-for="servicio in serviciosDisponibles" :key="servicio.id" :value="servicio.id">
+          {{ servicio.nombre }}
+        </option>
+      </select>
+
+      <div v-if="serviciosSeleccionados.length > 0" class="servicios-seleccionados">
+        <h3>Servicios Seleccionados:</h3>
+        <ul>
+          <li v-for="(servicio, index) in serviciosSeleccionados" :key="index">
+            {{ servicio.nombre }}
+            <button @click="eliminarServicio(index)">Eliminar</button>
+          </li>
+        </ul>
+      </div>
+
       <button @click="crearEvento" class="btn-crear">Crear Evento</button>
     </div>
 
@@ -76,13 +104,22 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useStore } from 'vuex'
-import { mostrarPaquetes, obtenerEventos, obtenerUsuarios, CrearEvento } from '@/Apis/api'
+import {
+  mostrarPaquetes,
+  obtenerEventos,
+  obtenerUsuarios,
+  CrearEvento,
+  mostrarServicios
+} from '@/Apis/api'
 import EventosItem from '../Usuarios/EventosItem.vue'
 
 const store = useStore()
 const eventos = ref([])
 const usuarios = ref([])
 const paquetes = ref([])
+const serviciosDisponibles = ref([])
+const serviciosSeleccionados = ref([]) // Lista de servicios seleccionados
+const servicioSeleccionado = ref(null) // Servicio seleccionado en el momento
 const error = ref(null)
 const nombre = ref('')
 const usuario_id = ref('')
@@ -126,7 +163,18 @@ const fetchPaquetes = async () => {
     const paquetesData = await mostrarPaquetes(token)
     paquetes.value = paquetesData
   } catch (err) {
-    error.value = 'no se pudieron cargar los paquetes '
+    error.value = 'No se pudieron cargar los paquetes.'
+    console.error(err)
+  }
+}
+
+const fetchServicios = async () => {
+  try {
+    const token = 'TU_BEARER_TOKEN_AQUI'
+    const serviciosData = await mostrarServicios(token)
+    serviciosDisponibles.value = serviciosData
+  } catch (err) {
+    error.value = 'No se pudieron cargar los servicios.'
     console.error(err)
   }
 }
@@ -135,9 +183,25 @@ onMounted(() => {
   fetchEventos()
   fetchUsuarios()
   fetchPaquetes()
+  fetchServicios()
 })
 
-// Función para crear el evento
+// Función para agregar el servicio seleccionado a la lista
+const agregarServicio = () => {
+  if (servicioSeleccionado.value) {
+    const servicio = serviciosDisponibles.value.find((s) => s.id === servicioSeleccionado.value)
+    if (servicio) {
+      // Agrega el servicio aunque ya esté en la lista
+      serviciosSeleccionados.value.push(servicio)
+    }
+  }
+  servicioSeleccionado.value = null
+}
+
+const eliminarServicio = (index) => {
+  serviciosSeleccionados.value.splice(index, 1)
+}
+
 const crearEvento = async () => {
   try {
     const token = store.getters.token
@@ -151,26 +215,28 @@ const crearEvento = async () => {
       hora_fin: hora_fin.value,
       descripcion: descripcion.value,
       num_personas: num_personas.value,
-      confirmacion: confirmacion.value
+      confirmacion: confirmacion.value,
+      servicios: serviciosSeleccionados.value.map((servicio) => servicio.id)
     }
 
-    const Nuevo_Evento = await CrearEvento(data, token)
+    const nuevoEvento = await CrearEvento(data, token)
 
-    if (Nuevo_Evento) {
-      eventos.value.push(Nuevo_Evento) // Agrega el paquete a la lista
-      console.log('Nuevo paquete agregado:', Nuevo_Evento)
-      ;(nombre.value = ''),
-        (usuario_id.value = ''),
-        (paquete_id.value = ''),
-        (precio.value = ''),
-        (fecha.value = ''),
-        (hora_inicio.value = ''),
-        (hora_fin.value = ''),
-        (descripcion.value = ''),
-        (num_personas.value = '')
+    if (nuevoEvento) {
+      eventos.value.push(nuevoEvento) // Agrega el nuevo evento a la lista
+      // Limpiar campos
+      nombre.value = ''
+      usuario_id.value = ''
+      paquete_id.value = ''
+      precio.value = ''
+      fecha.value = ''
+      hora_inicio.value = ''
+      hora_fin.value = ''
+      descripcion.value = ''
+      num_personas.value = ''
+      serviciosSeleccionados.value = [] // Limpiar servicios seleccionados
     }
   } catch (err) {
-    error.value = 'No se pudo crear el evento'
+    error.value = 'No se pudo crear el evento.'
     console.error(err)
   }
 }
@@ -301,5 +367,36 @@ body {
 
 .btn-crear:hover {
   background-color: #218838;
+}
+
+.servicios-seleccionados {
+  margin-top: 20px;
+}
+
+.servicios-seleccionados ul {
+  list-style-type: none;
+  padding-left: 0;
+}
+
+.servicios-seleccionados li {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.servicios-seleccionados button {
+  background-color: red;
+  color: white;
+  border: none;
+  padding: 5px;
+  cursor: pointer;
+}
+
+.select-servicio {
+  background: none; /* Quita el fondo */
+  border: none; /* Quita el borde */
+  padding-right: 20px; /* Espacio para la flecha */
+  width: 30px; /* Ajusta el ancho para que solo quede la flecha */
+  cursor: pointer; /* Cambia el cursor a "mano" para mejorar la experiencia */
 }
 </style>
