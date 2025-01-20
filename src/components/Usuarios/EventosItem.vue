@@ -2,6 +2,21 @@
   <div class="evento-item">
     <!-- Botón de eliminar en la esquina superior derecha -->
     <button class="eliminar-evento" @click="eliminarEvento(evento.id)">Eliminar Evento</button>
+    <button
+      v-if="evento.confirmacion === 'sin confirmar'"
+      class="confirmar-evento"
+      @click="confirmarEvento(evento.id)"
+    >
+      Confirmar
+    </button>
+
+    <button
+      v-if="evento.confirmacion === 'sin confirmar'"
+      class="rechazar-evento"
+      @click="rechazarEvento(evento.id)"
+    >
+      Rechazar
+    </button>
 
     <h2>{{ evento.nombre }}</h2>
     <p>{{ evento.descripcion }}</p>
@@ -11,7 +26,15 @@
     <p><strong>Precio:</strong> ${{ evento.precio }}</p>
     <p><strong>Número de Personas:</strong> {{ evento.num_personas }}</p>
     <p><strong>Paquete:</strong> {{ evento.paquete_id }}</p>
-    <p><strong>Confirmación:</strong> {{ evento.confirmacion }}</p>
+    <p v-if="evento.confirmacion === 'rechazado'"><strong>Motivo:</strong>{{ evento.motivo }}</p>
+    <p>
+      <strong>Confirmación:</strong>
+      <span v-if="evento.confirmacion === 'confirmado'" class="evento-conf"
+        >Confirmado &#x2714;</span
+      >
+      <span v-if="evento.confirmacion === 'sin confirmar'">Sin Confirmar</span>
+      <span v-if="evento.confirmacion === 'rechazado'" class="evento-rechazado"> Rechazado </span>
+    </p>
 
     <button @click="toggleServicios">
       {{ mostrarServiciosSistema ? 'Ocultar Servicios' : 'Ver Servicios Extras' }}
@@ -34,8 +57,8 @@
 import { ref } from 'vue'
 import { EliminarEventoId } from '@/Apis/apis_eventos'
 import { useStore } from 'vuex'
-
-const emit = defineEmits(['evento-eliminado'])
+import { ConfirmarEventoId } from '@/Apis/apis_eventos'
+const emit = defineEmits(['evento-eliminado', 'evento-confirmado'])
 
 defineProps({
   evento: {
@@ -63,6 +86,20 @@ const eliminarEvento = async (eventoId) => {
     emit('evento-eliminado', eventoId) // Aquí estamos pasando el ID del evento eliminado
   } catch (error) {
     console.error('Error al eliminar el evento', error)
+  }
+}
+
+const confirmarEvento = async (eventoId) => {
+  try {
+    const token = store.getters.token
+    await ConfirmarEventoId(eventoId, token)
+
+    // Actualizar el estado del evento directamente
+
+    // Emitir evento para que el componente padre se entere del cambio
+    emit('evento-confirmado', eventoId)
+  } catch (error) {
+    console.error('Error al confirmar el evento:', error)
   }
 }
 </script>
@@ -119,6 +156,26 @@ const eliminarEvento = async (eventoId) => {
   background-color: #c0392b;
 }
 
+/* Botón de confirmar */
+.confirmar-evento {
+  position: absolute;
+  top: 60px; /* Justo debajo del botón de eliminar */
+  right: 10px;
+  width: 120px; /* Mismo ancho que el de eliminar */
+  height: 40px; /* Mismo alto que el de eliminar */
+  background-color: #3498db;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  font-weight: bold;
+  transition: background-color 0.3s ease;
+}
+
+.confirmar-evento:hover {
+  background-color: #2980b9;
+}
+
 button {
   margin-top: 15px;
   padding: 8px 15px;
@@ -134,16 +191,75 @@ button:hover {
   background-color: #2980b9;
 }
 
-select {
-  margin-top: 15px;
+/* Botón de confirmación */
+.evento-confirmado {
+  margin-top: 10px;
   padding: 8px 15px;
-  font-size: 1rem;
-  border: 1px solid #ccc;
+  cursor: default;
+  background-color: #2ecc71;
+  color: white;
+  border: none;
   border-radius: 4px;
+  font-size: 1rem;
+  font-weight: bold;
 }
 
-select:focus {
-  outline: none;
-  border-color: #3498db;
+/* Botón de confirmación azul */
+.evento-sin-confirmar {
+  margin-top: 10px;
+  padding: 8px 15px;
+  cursor: pointer;
+  background-color: #3498db;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-size: 1rem;
+  font-weight: bold;
+}
+
+.evento-sin-confirmar:hover {
+  background-color: #2980b9;
+}
+
+/* Estilo para el botón de rechazo */
+.evento-rechazado {
+  display: inline-block; /* Para que esté en línea con el texto */
+  margin-left: 10px; /* Separación del texto */
+  padding: 2px 8px; /* Ajustar tamaño */
+  background-color: #e74c3c; /* Fondo rojo */
+  color: white; /* Texto blanco */
+  border-radius: 4px; /* Bordes redondeados */
+  font-size: 0.9rem; /* Tamaño de texto */
+  font-weight: bold; /* Texto en negrita */
+}
+
+.evento-conf {
+  display: inline-block; /* Para que esté en línea con el texto */
+  margin-left: 10px; /* Separación del texto */
+  padding: 2px 8px; /* Ajustar tamaño */
+  background-color: #3ce742; /* Fondo rojo */
+  color: white; /* Texto blanco */
+  border-radius: 4px; /* Bordes redondeados */
+  font-size: 0.9rem; /* Tamaño de texto */
+  font-weight: bold; /* Texto en negrita */
+}
+
+.rechazar-evento {
+  position: absolute;
+  top: 110px; /* Justo debajo del botón de confirmar */
+  right: 10px;
+  width: 120px;
+  height: 40px;
+  background-color: #e74c3c;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  font-weight: bold;
+  transition: background-color 0.3s ease;
+}
+
+.rechazar-evento:hover {
+  background-color: #c0392b;
 }
 </style>

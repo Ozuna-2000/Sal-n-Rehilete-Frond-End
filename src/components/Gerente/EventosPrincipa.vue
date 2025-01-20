@@ -12,7 +12,6 @@
         placeholder="Ingresa el nombre del evento"
       /><br />
 
-      <!-- Solo renderizar el campo de usuario si no es cliente -->
       <h2 v-if="!esCliente"><label for="usuario" class="label">Seleccionar Usuario:</label></h2>
       <select v-if="!esCliente" id="usuario" v-model="usuario_id" class="input">
         <option value="" disabled>Seleccione un usuario</option>
@@ -99,9 +98,8 @@
       <li v-for="evento in eventos" :key="evento.id" class="evento-item">
         <EventosItem
           :evento="evento"
-          v-for="evento in eventos"
-          :key="evento.id"
           @evento-eliminado="handleEventoEliminado"
+          @evento-confirmado="handleEventoConfirmado"
         />
       </li>
     </ul>
@@ -155,6 +153,10 @@ const handleEventoEliminado = (eventoId) => {
   eventos.value = eventos.value.filter((evento) => evento.id !== eventoId)
 }
 
+const handleEventoConfirmado = (eventoActualizado) => {
+  eventos.value = eventos.value.filter((evento) => evento.id !== eventoActualizado)
+}
+
 const fetchEventos = async () => {
   try {
     // Obtén el token desde Vuex (o donde lo estés almacenando)
@@ -182,16 +184,15 @@ const fetchEventos = async () => {
 
 const fetchUsuarios = async () => {
   try {
-    const store = useStore()
-    const rolUsuario = store.state.rol
+    const token = store.getters.token
+    const esGerente = store.getters.isGerente
 
-    if (rolUsuario !== 'gerente') {
+    if (!esGerente) {
       console.log('Acción denegada: Solo el gerente puede ver los usuarios.')
       return
     }
 
-    // Si es gerente, proceder con la solicitud
-    const token = 'TU_BEARER_TOKEN_AQUÍ'
+    // Llamada a la API con el token
     const usuariosData = await obtenerUsuarios(token)
     usuarios.value = usuariosData
   } catch (err) {

@@ -37,3 +37,37 @@ export const EliminarEventoId = async (eventoId) => {
     throw error
   }
 }
+
+export const ConfirmarEventoId = async (eventoId, token) => {
+  try {
+    const token = store.state.token
+    // URL del endpoint para confirmar el evento
+    const eventUrl = `${url}/api/eventos/${eventoId}/confirmar` // Cambio aquí
+
+    // Configuración de los encabezados con el token
+    const config = {
+      headers: {
+        Authorization: `Bearer ${token}` // Token de autenticación
+      }
+    }
+
+    console.log('Token enviado:', token) // Verificar el token
+
+    // Hacemos la solicitud PUT
+    const response = await axios.put(eventUrl, {}, config) // Usamos `eventUrl` en lugar de `url`
+
+    // Retornamos la respuesta de la API
+    return response.data
+  } catch (error) {
+    // Manejo del error
+    if (error.response) {
+      console.error('Error del servidor:', error.response.data) // Más detalles del servidor
+      if (error.response.status === 401) {
+        console.error('El token no es válido o ha expirado.')
+      }
+    } else {
+      console.error('Error de conexión:', error.message)
+    }
+    throw error // Propagar el error
+  }
+}
