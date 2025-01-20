@@ -5,9 +5,8 @@
     <!-- Mostrar imágenes si existen -->
     <div v-if="medios.length">
       <div v-for="(medio, index) in medios" :key="medio.id" class="image-item">
-        <img :src="getImageUrl(medio)" alt="Imagen del paquete" width="80" height="80" />
+        <img :src="getImageUrl(medio)" alt="Imagen del paquete" width="500" height="500" />
 
-        <!-- Botón de eliminar imagen -->
         <button
           v-if="isGerente"
           @click="confirmDeleteImage(index)"

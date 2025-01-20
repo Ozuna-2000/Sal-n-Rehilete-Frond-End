@@ -45,7 +45,7 @@
     </div>
 
     <button @click="mostrarMedios = !mostrarMedios">
-      {{ mostrarMedios ? 'Ocultar Medios' : 'Ver Medios' }}
+      {{ mostrarMedios ? 'Ocultar Imagenes' : 'Ver imagenes del servicio' }}
     </button>
 
     <MediosServicios v-if="mostrarMedios" :servicio="servicio" />

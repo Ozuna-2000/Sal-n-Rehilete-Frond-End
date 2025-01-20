@@ -33,7 +33,6 @@
       <h2>{{ paquete.nombre }}</h2>
       <p>{{ paquete.descripcion }}</p>
       <p>Precio: {{ paquete.precio }} MXN</p>
-      <p>id: {{ paquete.id }}</p>
 
       <button @click="mostrarServiciosPaquete = !mostrarServiciosPaquete">
         {{ mostrarServiciosPaquete ? 'Ocultar Servicios' : 'Ver Servicios' }}
@@ -84,7 +83,7 @@
 
     <!-- Botón para ver/ocultar medios (DetallePaquete) -->
     <button @click="mostrarMedios = !mostrarMedios">
-      {{ mostrarMedios ? 'Ocultar Medios' : 'Ver Medios' }}
+      {{ mostrarMedios ? 'Ocultar imagenes' : 'Ver Imagenes del paquete' }}
     </button>
 
     <DetallePaquete v-if="mostrarMedios" :paquete="paquete" />
