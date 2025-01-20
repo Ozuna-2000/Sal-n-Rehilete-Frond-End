@@ -1,9 +1,12 @@
 <template>
   <div class="acciones-paquete">
-    <button @click="eliminarPaquete" class="btn-eliminar">Eliminar</button>
+    <button v-if="isGerente && isAuthenticated" @click="eliminarPaquete" class="btn-eliminar">
+      Eliminar Paquete
+    </button>
   </div>
   <div class="acciones-paquete">
     <button
+      v-if="isGerente"
       :style="{ backgroundColor: paquete.activo === 1 ? 'green' : 'red' }"
       @click="activarDesactivarPaquete(paquete)"
       class="btn-activar"
@@ -12,7 +15,13 @@
     </button>
 
     <!-- Checkbox para activar/desactivar paquete -->
-    <input type="checkbox" v-model="paquete.activo" :true-value="1" :false-value="0" />
+    <input
+      v-if="isGerente && isAuthenticated"
+      type="checkbox"
+      v-model="paquete.activo"
+      :true-value="1"
+      :false-value="0"
+    />
   </div>
 </template>
 
@@ -20,13 +29,17 @@
 import { useRouter } from 'vue-router'
 import { useStore } from 'vuex'
 import { EliminarPaqueteId, ActivarPaqueteId } from '@/Apis/api'
-
+import { computed } from 'vue'
 const props = defineProps({
   paquete: {
     type: Object,
     required: true
   }
 })
+
+const isAuthenticated = computed(() => store.getters.isAuthenticated)
+const userRole = computed(() => store.getters.userRole)
+const isGerente = computed(() => userRole.value === 'Gerente')
 
 const router = useRouter()
 const store = useStore()

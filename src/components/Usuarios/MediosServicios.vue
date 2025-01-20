@@ -8,7 +8,12 @@
         <img :src="getImageUrl(medio)" alt="Imagen del servicio" width="500" height="500" />
 
         <!-- Botón de eliminar imagen -->
-        <button @click="confirmDeleteImage(index)" class="delete-icon" aria-label="Eliminar imagen">
+        <button
+          v-if="isGerente"
+          @click="confirmDeleteImage(index)"
+          class="delete-icon"
+          aria-label="Eliminar imagen"
+        >
           <i class="fas fa-times"></i>
         </button>
       </div>
@@ -20,7 +25,7 @@
     </div>
 
     <!-- Siempre mostrar el formulario para subir imágenes -->
-    <label>
+    <label v-if="isGerente">
       Subir Imagen(es)
       <input type="file" @change="handleImageUpload" />
     </label>
@@ -28,7 +33,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import { useStore } from 'vuex'
 import { obtenerMedioServicio, subirImagenServicio, deleteImageServicio } from '@/Apis/api'
 
@@ -38,6 +43,10 @@ const props = defineProps({
     required: true
   }
 })
+
+const isAuthenticated = computed(() => store.getters.isAuthenticated)
+const userRole = computed(() => store.getters.userRole)
+const isGerente = computed(() => userRole.value === 'Gerente')
 
 const medios = ref([])
 

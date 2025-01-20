@@ -68,12 +68,16 @@ export const AgregarPaquete = async (data, token) => {
   }
 }
 
-export const obtenerMediosPaquete = async (idPaquete, token) => {
-  const response = await axios.get(`http://127.0.0.1:8000/api/paquetes/${idPaquete}/medios`, {
-    headers: {
-      Authorization: `Bearer ${token}`
-    }
-  })
+export const obtenerMediosPaquete = async (idPaquete, token = null) => {
+  const config = token
+    ? {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      }
+    : {}
+
+  const response = await axios.get(`http://127.0.0.1:8000/api/paquetes/${idPaquete}/medios`, config)
   return response.data
 }
 
@@ -342,14 +346,23 @@ export const EliminarServicioId = async (servicioId) => {
     throw error // Esto permite que el error se maneje en el componente
   }
 }
-export const obtenerMedioServicio = async (idServicio, token) => {
-  const response = await axios.get(`http://127.0.0.1:8000/api/servicios/${idServicio}/medios`, {
-    headers: {
-      Authorization: `Bearer ${token}`
-    }
-  })
+
+export const obtenerMedioServicio = async (idServicio, token = null) => {
+  const config = token
+    ? {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      }
+    : {}
+
+  const response = await axios.get(
+    `http://127.0.0.1:8000/api/servicios/${idServicio}/medios`,
+    config
+  )
   return response.data
 }
+
 export const subirImagenServicio = async (servicioId, archivos, token) => {
   try {
     // Crear una instancia de FormData para enviar los archivos

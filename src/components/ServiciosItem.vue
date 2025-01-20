@@ -32,8 +32,14 @@
       <h2>{{ servicio.precio }} MXN</h2>
       <p>{{ servicio.descripcion }}</p>
       <p>{{ servicio.minimo }}</p>
-      <button v-if="puedeEditar" @click="editarServicio" class="btn-editar">Editar</button>
-      <button v-if="puedeEditar" @click="eliminarServicio(servicio.id)" class="btn-eliminar">
+      <button v-if="isGerente && puedeEditar" @click="editarServicio" class="btn-editar">
+        Editar
+      </button>
+      <button
+        v-if="isGerente && puedeEditar"
+        @click="eliminarServicio(servicio.id)"
+        class="btn-eliminar"
+      >
         Eliminar
       </button>
     </div>
@@ -47,7 +53,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useStore } from 'vuex'
 import { obtenerServicioPorId, actualizarServicio, EliminarServicioId } from '@/Apis/api'
@@ -65,6 +71,9 @@ const servicio = ref(props.servicio) // Inicializar servicio con la prop o null
 const router = useRouter()
 const store = useStore()
 const mostrarMedios = ref(false)
+const isAuthenticated = computed(() => store.getters.isAuthenticated)
+const userRole = computed(() => store.getters.userRole)
+const isGerente = computed(() => userRole.value === 'Gerente')
 
 // Determinar si el usuario puede editar
 const puedeEditar = ref(true)

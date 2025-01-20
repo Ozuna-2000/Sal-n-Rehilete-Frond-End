@@ -19,7 +19,11 @@
         <input type="number" v-model="paquete.precio" name="paquetePrecio" id="paquetePrecio" /> MXN
       </p>
 
-      <button v-if="puedeEditar" @click="guardarPaquete(paquete.id)" class="btn-editar">
+      <button
+        v-if="isGerente && puedeEditar"
+        @click="guardarPaquete(paquete.id)"
+        class="btn-editar"
+      >
         Guardar
       </button>
     </div>
@@ -43,8 +47,8 @@
             }}
             MXN
             <button
+              v-if="isGerente"
               @click="eliminarServicio(servicio.id)"
-              v-if="isAuthenticated"
               class="btn-eliminar-servicio"
               title="Eliminar servicio de este paquete"
             >
@@ -54,7 +58,7 @@
         </ul>
         <p v-else>No hay servicios disponibles en este paquete.</p>
 
-        <button @click="mostrarServiciosList = !mostrarServiciosList">
+        <button @click="mostrarServiciosList = !mostrarServiciosList" v-if="isAuthenticated">
           {{ mostrarServiciosList ? 'Ocultar Servicios Disponibles' : 'Ver Servicios Disponibles' }}
         </button>
 
@@ -73,7 +77,9 @@
         </div>
       </div>
 
-      <button v-if="puedeEditar" @click="editarPaquete" class="btn-editar">Editar</button>
+      <button v-if="isGerente && puedeEditar" @click="editarPaquete" class="btn-editar">
+        Editar
+      </button>
     </div>
 
     <!-- Botón para ver/ocultar medios (DetallePaquete) -->
