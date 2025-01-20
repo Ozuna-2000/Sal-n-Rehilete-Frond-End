@@ -71,3 +71,31 @@ export const ConfirmarEventoId = async (eventoId, token) => {
     throw error // Propagar el error
   }
 }
+
+export const rechazarEvento = async (eventoId, motivo) => {
+  try {
+    // Usar directamente la constante 'url' definida arriba
+    const eventUrl = `${url}/api/eventos/${eventoId}/rechazar`
+
+    const token = store.getters.token
+
+    const response = await axios.put(
+      eventUrl,
+      { motivo },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      }
+    )
+
+    if (response.status === 200) {
+      console.log('Evento rechazado correctamente')
+      // Aquí podrías actualizar el estado o emitir un evento para actualizar la UI
+    } else {
+      console.error('Hubo un error al rechazar el evento')
+    }
+  } catch (error) {
+    console.error('Error al hacer la solicitud de rechazo:', error)
+  }
+}

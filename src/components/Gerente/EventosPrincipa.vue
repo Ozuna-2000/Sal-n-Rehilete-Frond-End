@@ -100,6 +100,7 @@
           :evento="evento"
           @evento-eliminado="handleEventoEliminado"
           @evento-confirmado="handleEventoConfirmado"
+          @evento-rechazado="handleEventoRechazado"
         />
       </li>
     </ul>
@@ -155,6 +156,10 @@ const handleEventoEliminado = (eventoId) => {
 
 const handleEventoConfirmado = (eventoActualizado) => {
   eventos.value = eventos.value.filter((evento) => evento.id !== eventoActualizado)
+}
+
+const handleEventoRechazado = (rechazoEvento) => {
+  eventos.value = eventos.value.filter((evento) => evento.id !== rechazoEvento)
 }
 
 const fetchEventos = async () => {

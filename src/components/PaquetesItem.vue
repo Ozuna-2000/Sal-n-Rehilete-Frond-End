@@ -44,6 +44,7 @@
             MXN
             <button
               @click="eliminarServicio(servicio.id)"
+              v-if="isAuthenticated"
               class="btn-eliminar-servicio"
               title="Eliminar servicio de este paquete"
             >
@@ -88,7 +89,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import { useRoute } from 'vue-router'
 import { useStore } from 'vuex' // Importamos el store
 import {
@@ -118,6 +119,10 @@ const mostrarMedios = ref(false) // Mostrar/ocultar medios (DetallePaquete)
 const puedeEditar = ref(true) // Determinar si el paquete se puede editar (puedes poner tu lógica aquí)
 const mostrarServiciosList = ref(false)
 const serviciosDisponibles = ref([])
+
+const isAuthenticated = computed(() => store.getters.isAuthenticated)
+const userRole = computed(() => store.getters.userRole)
+const isGerente = computed(() => userRole.value === 'Gerente')
 
 const router = useRoute()
 const paqueteId = router.params.paqueteId

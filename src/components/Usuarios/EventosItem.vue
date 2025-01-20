@@ -1,9 +1,11 @@
 <template>
   <div class="evento-item">
     <!-- Botón de eliminar en la esquina superior derecha -->
-    <button class="eliminar-evento" @click="eliminarEvento(evento.id)">Eliminar Evento</button>
+    <button v-if="isGerente" class="eliminar-evento" @click="eliminarEvento(evento.id)">
+      Eliminar Evento
+    </button>
     <button
-      v-if="evento.confirmacion === 'sin confirmar'"
+      v-if="isGerente && evento.confirmacion === 'sin confirmar'"
       class="confirmar-evento"
       @click="confirmarEvento(evento.id)"
     >
@@ -11,9 +13,9 @@
     </button>
 
     <button
-      v-if="evento.confirmacion === 'sin confirmar'"
+      v-if="isGerente && evento.confirmacion === 'sin confirmar'"
       class="rechazar-evento"
-      @click="rechazarEvento(evento.id)"
+      @click="abrirModalRechazo"
     >
       Rechazar
     </button>
@@ -50,29 +52,88 @@
     <p v-else-if="mostrarServiciosSistema && (!evento.servicios || evento.servicios.length === 0)">
       No hay servicios disponibles para este evento.
     </p>
+
+    <!-- Modal de Rechazo -->
+    <div v-if="mostrarModalRechazo" class="modal">
+      <div class="modal-content">
+        <h3>Motivo de Rechazo</h3>
+        <p><strong>Correo del usuario:</strong> {{ correoUsuario }}</p>
+        <textarea v-model="motivo" placeholder="Ingrese el motivo del rechazo"></textarea>
+        <button @click="rechazarEventos(evento.id)">Aceptar</button>
+        <button @click="cerrarModalRechazo">Cancelar</button>
+      </div>
+    </div>
   </div>
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import { EliminarEventoId } from '@/Apis/apis_eventos'
 import { useStore } from 'vuex'
-import { ConfirmarEventoId } from '@/Apis/apis_eventos'
-const emit = defineEmits(['evento-eliminado', 'evento-confirmado'])
+import { ConfirmarEventoId, rechazarEvento } from '@/Apis/apis_eventos'
+import { obtenerUsuarios } from '@/Apis/api'
+const emit = defineEmits(['evento-eliminado', 'evento-confirmado', 'evento-rechazado'])
+const userRole = computed(() => store.getters.userRole)
+const isGerente = computed(() => userRole.value === 'Gerente')
 
-defineProps({
+const props = defineProps({
   evento: {
     type: Object,
     required: true
   }
 })
-
+const mostrarModalRechazo = ref(false) // Controla la visibilidad del modal
+const motivo = ref('') // Almacena el motivo del rechazo
 const store = useStore()
 const mostrarServiciosSistema = ref(false)
+const correoUsuario = ref('')
+
+const cargarCorreoUsuario = async (usuario_id) => {
+  try {
+    const usuarios = await obtenerUsuarios() // Obtener todos los usuarios
+    console.log('Usuarios:', usuarios) // Verifica qué datos estás recibiendo
+    const usuario = usuarios.find((u) => u.id === usuario_id) // Busca el usuario con el id correspondiente
+    if (usuario) {
+      console.log('Correo del usuario:', usuario.email) // Verifica el correo del usuario
+      correoUsuario.value = usuario.email // Asigna el correo al campo
+    } else {
+      console.log('Usuario no encontrado')
+    }
+  } catch (error) {
+    console.error('Error al cargar el correo del usuario:', error)
+  }
+}
 
 // Mostrar u ocultar los servicios del evento
 const toggleServicios = () => {
   mostrarServiciosSistema.value = !mostrarServiciosSistema.value
+}
+const abrirModalRechazo = () => {
+  mostrarModalRechazo.value = true
+  console.log('usuario_id:', props.evento.usuario_id)
+  cargarCorreoUsuario(props.evento.usuario_id)
+}
+
+// Función para cerrar la modal de rechazo
+const cerrarModalRechazo = () => {
+  mostrarModalRechazo.value = false
+  motivo.value = '' // Limpiar el campo de texto
+}
+
+const rechazarEventos = async (eventoId) => {
+  if (motivo.value.trim() !== '') {
+    try {
+      const token = store.getters.token
+      await rechazarEvento(props.evento.id, motivo.value, token, eventoId)
+      emit('evento-rechazado', eventoId) // Llamada a la función de API
+      console.log('Evento rechazado correctamente')
+      cerrarModalRechazo() // Cerrar el modal después de rechazar
+    } catch (error) {
+      console.error('Error al rechazar el evento:', error)
+    }
+  } else {
+    console.log('Se debe ingresar un motivo para el rechazo.')
+  }
 }
 
 const eliminarEvento = async (eventoId) => {
@@ -261,5 +322,32 @@ button:hover {
 
 .rechazar-evento:hover {
   background-color: #c0392b;
+}
+
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.modal-content {
+  background: white;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+  width: 400px;
+  text-align: center;
+}
+
+textarea {
+  width: 100%;
+  height: 80px;
+  margin-bottom: 10px;
 }
 </style>
