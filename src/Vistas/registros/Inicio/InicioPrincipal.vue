@@ -94,7 +94,7 @@ body {
 /* Estilos para secciones "Conócenos" y "Contáctanos" */
 .conocenos,
 .contactanos {
-  background-color: rgba(255, 255, 255, 0.8); /* Fondo blanco semi-transparente */
+  background-color: rgba(6, 5, 5, 0.8); /* Fondo blanco semi-transparente */
   border-radius: 5px; /* Bordes redondeados */
   padding: 15px; /* Espaciado interno */
   margin: 10px 0; /* Espaciado vertical entre secciones */

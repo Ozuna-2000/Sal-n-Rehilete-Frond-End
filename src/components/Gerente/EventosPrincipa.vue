@@ -25,7 +25,7 @@
       <select id="paquete" v-model="paquete_id" class="input">
         <option value="" disabled>Seleccione un paquete</option>
         <option v-for="paquete in paquetes" :key="paquete.id" :value="paquete.id">
-          {{ paquete.nombre }}
+          {{ paquete.nombre }} ${{ paquete.precio }} MX
         </option>
       </select>
 
@@ -76,7 +76,7 @@
       >
         <option value="" disabled>Seleccione un servicio</option>
         <option v-for="servicio in serviciosDisponibles" :key="servicio.id" :value="servicio.id">
-          {{ servicio.nombre }}
+          {{ servicio.nombre }} $ {{ servicio.precio }}
         </option>
       </select>
 
@@ -84,7 +84,7 @@
         <h3>Servicios Seleccionados:</h3>
         <ul>
           <li v-for="(servicio, index) in serviciosSeleccionados" :key="index">
-            {{ servicio.nombre }}
+            {{ servicio.nombre }} ${{ servicio.precio }}MX
             <button @click="eliminarServicio(index)">Eliminar</button>
           </li>
         </ul>
@@ -140,7 +140,7 @@ const num_personas = ref('')
 const confirmacion = ref('')
 
 const rolUsuario = computed(() => {
-  const rol = store.getters.userRole // Cambié 'rol' por 'userRole'
+  const rol = store.getters.userRole
   console.log('Rol del usuario:', rol)
   return rol
 })

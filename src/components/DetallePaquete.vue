@@ -2,11 +2,12 @@
   <div class="detalle-paquete">
     <h2>Imágenes del Paquete {{ paquete.nombre }}</h2>
 
-    <!-- Mostrar imágenes si existen -->
-    <div v-if="medios.length">
-      <div v-for="(medio, index) in medios" :key="medio.id" class="image-item">
-        <img :src="getImageUrl(medio)" alt="Imagen del paquete" width="500" height="500" />
+    <!-- Mostrar imágenes en carrusel si existen -->
+    <div v-if="medios.length" class="carousel">
+      <div v-for="(medio, index) in medios" :key="medio.id" class="carousel-item">
+        <img :src="getImageUrl(medio)" alt="Imagen del paquete" class="carousel-image" />
 
+        <!-- Botón para eliminar imagen -->
         <button
           v-if="isGerente"
           @click="confirmDeleteImage(index)"
@@ -81,13 +82,11 @@ const handleImageUpload = async (event) => {
   }
 
   try {
-    // Convertir FileList a Array
     const archivosArray = Array.from(archivos)
-
     const token = store.getters.token
     const respuesta = await subirImagenPaquete(props.paquete.id, archivosArray, token)
     console.log('Imágenes subidas:', respuesta)
-    cargarMedios() // Volver a cargar los medios después de subir las imágenes
+    cargarMedios()
   } catch (error) {
     console.error('Error al subir las imágenes:', error)
   }
@@ -105,7 +104,6 @@ const confirmDeleteImage = (index) => {
   }
 }
 
-// Cargar medios cuando el paquete cambie
 onMounted(() => {
   cargarMedios()
 })
@@ -114,36 +112,49 @@ onMounted(() => {
 <style scoped>
 .detalle-paquete img {
   max-width: 100%;
-  margin: 10px;
   border-radius: 8px;
 }
 
-.image-item {
+.carousel {
+  display: flex;
+  overflow-x: auto;
+  gap: 15px;
+}
+
+.carousel-item {
   position: relative;
+  flex-shrink: 0;
+}
+
+.carousel-image {
+  width: 500px;
+  height: 500px;
+  object-fit: cover;
+  border-radius: 8px;
 }
 
 .delete-icon {
   position: absolute;
-  top: 5px;
-  right: 5px;
-  background: rgba(0, 0, 0, 0.7); /* Fondo oscuro para mejorar visibilidad */
+  top: 10px;
+  left: 10px;
+  background: rgba(255, 0, 0, 0.8);
   color: white;
   border: none;
-  border-radius: 4px; /* Cuadrado con bordes redondeados */
-  padding: 10px; /* Aumenta el tamaño del área clickeable */
-  cursor: pointer;
-  width: 35px; /* Tamaño cuadrado del botón */
-  height: 35px; /* Tamaño cuadrado del botón */
+  border-radius: 50%;
+  width: 35px;
+  height: 35px;
   display: flex;
   justify-content: center;
   align-items: center;
+  cursor: pointer;
+  z-index: 10;
 }
 
 .delete-icon:hover {
-  background: rgba(255, 0, 0, 0.8); /* Rojo al pasar el cursor */
+  background: rgba(255, 0, 0, 1);
 }
 
 .delete-icon i {
-  font-size: 22px; /* Aumenta el tamaño de la X */
+  font-size: 16px;
 }
 </style>
