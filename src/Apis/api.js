@@ -5,11 +5,15 @@ const url = 'http://127.0.0.1:8000'
 // Falta indicar poner el aplicasion=>json
 export const crearEntrada = async (data) => {
   try {
-    const response = await axios.post(`${url}/api/entrada`, data) // Ennviamos los datos para hacer la peticion
-    return response.data // devolvemos la respuesta de la api
+    const response = await axios.post(`${url}/api/entrada`, data, {
+      headers: {
+        'Content-Type': 'application/json' // Indicamos que el contenido es JSON
+      }
+    })
+    return response.data // devolvemos la respuesta de la API
   } catch (error) {
     console.error('Error al crear la entrada:', error)
-    throw error // lanza el error en caso de la que api, no responda correctamente
+    throw error // lanza el error en caso de que la API no responda correctamente
   }
 }
 export const mostrarPaquetes = async () => {
