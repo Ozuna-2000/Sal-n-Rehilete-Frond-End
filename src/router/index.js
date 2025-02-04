@@ -1,7 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import { useStore } from 'vuex'
 
-import Inicio from '@/Vistas/registros/Inicio/InicioPrincipal.vue'
+import Inicio from '@/Vistas/inicioPrincipal/InicioPrincipal.vue'
 
 const routes = [
   {
@@ -17,35 +17,35 @@ const routes = [
   {
     path: '/paquetes',
     name: 'paquetes-clientes',
-    component: () => import('@/Vistas/registros/ClienteAnonimo/PaquetesExistentes.vue')
+    component: () => import('@/Vistas/paquetesYservicios/PaquetesExistentes.vue')
   },
   {
     path: '/servicios',
     name: 'servicios',
-    component: () => import('@/Vistas/registros/ClienteAnonimo/ServiciosExistentes.vue')
+    component: () => import('@/Vistas/paquetesYservicios/ServiciosExistentes.vue')
   },
   {
     path: '/eventos',
     name: 'eventos',
-    component: () => import('@/components/Gerente/EventosPrincipa.vue')
+    component: () => import('@/components/componenteEventos/EventosPrincipa.vue')
   },
 
   {
     path: '/paquete/:paqueteId/medios',
     name: 'DetallePaquete',
-    component: () => import('@/components/DetallePaquete.vue'),
+    component: () => import('@/components/componentePaquetes/DetallePaquete.vue'),
     props: true
   },
   {
     path: '/registrate',
     name: 'agregar-usuario',
-    component: () => import('@/Vistas/Registro.vue')
+    component: () => import('@/Vistas/registros/Registro.vue')
   },
 
   {
     path: '/ListaUsuarios',
     name: 'listaUsuarios',
-    component: () => import('@/components/Usuarios/ListarUsuarios.vue')
+    component: () => import('@/components/componenteUsuarios/ListarUsuarios.vue')
   },
   {
     path: '/VistaGerente',
@@ -56,24 +56,24 @@ const routes = [
       {
         path: 'paquetes-Gere',
         name: 'paquetes-gerente',
-        component: () => import('@/components/Gerente/AccionesPaquetes.vue')
+        component: () => import('@/components/componentePaquetes/AccionesPaquetes.vue')
       },
       {
         path: 'servicios',
         name: 'servicios-gerente',
-        component: () => import('@/Vistas/registros/ClienteAnonimo/ServiciosExistentes.vue')
+        component: () => import('@/Vistas/paquetesYservicios/ServiciosExistentes.vue')
       },
 
       {
         path: 'paquetes/:paqueteId',
         name: 'paquetesitem',
-        component: () => import('@/components/PaquetesItem.vue'), // Ajusta la ruta según la ubicación del componente
+        component: () => import('@/components/componentePaquetes/PaquetesItem.vue'), // Ajusta la ruta según la ubicación del componente
         props: true // Permite pasar el paqueteId como propiedad
       },
       {
         path: '/servicios/:servicioId',
         name: 'ServciosItem',
-        component: () => import('@/components/ServiciosItem.vue'),
+        component: () => import('@/components/componenteServicios/ServiciosItem.vue'),
         props: true
       }
     ]

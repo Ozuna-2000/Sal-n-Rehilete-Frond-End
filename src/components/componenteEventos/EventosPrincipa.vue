@@ -117,7 +117,7 @@ import {
   CrearEvento,
   mostrarServicios
 } from '@/Apis/api'
-import EventosItem from '../Usuarios/EventosItem.vue'
+import EventosItem from './EventosItem.vue'
 import { computed } from 'vue'
 
 const store = useStore()

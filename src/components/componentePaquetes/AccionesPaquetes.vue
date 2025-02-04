@@ -1,6 +1,10 @@
 <template>
   <div class="acciones-paquete">
-    <button v-if="isGerente && isAuthenticated" @click="eliminarPaquete" class="btn-eliminar">
+    <button
+      v-if="isGerente && isAuthenticated"
+      @click="eliminarPaquete(paquete.id)"
+      class="btn-eliminar"
+    >
       Eliminar Paquete
     </button>
   </div>
@@ -36,7 +40,7 @@ const props = defineProps({
     required: true
   }
 })
-
+const emit = defineEmits(['paquete-eliminado'])
 const isAuthenticated = computed(() => store.getters.isAuthenticated)
 const userRole = computed(() => store.getters.userRole)
 const isGerente = computed(() => userRole.value === 'Gerente')
@@ -45,13 +49,14 @@ const router = useRouter()
 const store = useStore()
 
 // Función para eliminar el paquete
-const eliminarPaquete = async () => {
+const eliminarPaquete = async (idPaquete) => {
   try {
     const token = store.getters.token // Obtener el token de Vuex para la autenticación
     await EliminarPaqueteId(props.paquete.id, token) // Llamar a la API para eliminar el paquete
 
     // Si la eliminación es exitosa, mostramos un mensaje y redirigimos
     console.log('Paquete eliminado exitosamente')
+    emit('paquete-eliminado', idPaquete)
 
     // Redirigir a otra página (por ejemplo, la lista de paquetes)
     router.push('/paquetes') // Cambia la ruta según tu lógica

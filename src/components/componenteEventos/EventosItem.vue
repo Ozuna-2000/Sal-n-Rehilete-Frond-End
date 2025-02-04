@@ -143,7 +143,6 @@ const eliminarEvento = async (eventoId) => {
 
     console.log('El evento se eliminó')
 
-    // Emitir el evento hacia el componente principal
     emit('evento-eliminado', eventoId) // Aquí estamos pasando el ID del evento eliminado
   } catch (error) {
     console.error('Error al eliminar el evento', error)

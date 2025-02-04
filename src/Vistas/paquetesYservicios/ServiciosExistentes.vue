@@ -1,26 +1,32 @@
 <template>
-  <div class="paquetes-container">
+  <div class="servicios-container">
     <!-- Barra superior -->
     <div class="navbar">
-      <h1>Paquetes Disponibles</h1>
+      <h1>Servicios Disponibles</h1>
     </div>
-
-    <div v-if="isGerente" class="paquete-item">
+    <div v-if="isGerente" class="servicio-item">
       <h2><label for="nombre">nombre</label></h2>
       <input type="text" name="nombre" id="nombre" v-model="nombre" /><br />
       <h2><label for="descripcion">descripcion</label></h2>
       <textarea v-model="descripcion" cols="50" id="descripcion"></textarea><br />
       <h2><label for="precio">precio</label></h2>
       <input type="number" name="precio" id="precio" v-model="precio" /><br />
-      <!-- Botón de agregar paquete -->
-      <button @click="AgregarPaquetes">Agregar Paquete</button>
+      <h2><label for="minimo">Minimo</label></h2>
+      <input type="number" name="minimo" id="minimo" v-model="minimo" /><br />
+
+      <button @click="AgregarServicios">Agregar Servicio</button>
     </div>
 
-    <div v-if="paquetes.length">
-      <PaquetesItem v-for="paquete in paquetes" :key="paquete.id" :paquete="paquete" />
+    <div v-if="servicios.length">
+      <ServiciosItem
+        v-for="servicio in servicios"
+        :key="servicio.id"
+        :servicio="servicio"
+        @servicio-eliminado="eliminarServicio"
+      />
     </div>
     <div v-else>
-      <p>No hay paquetes disponibles en este momento.</p>
+      <p>No hay servicios disponibles en este momento.</p>
     </div>
   </div>
 </template>
@@ -28,67 +34,57 @@
 <script setup>
 import { ref, onMounted, computed } from 'vue'
 import { useStore } from 'vuex'
-import { mostrarPaquetes } from '@/Apis/api'
-import PaquetesItem from '@/components/PaquetesItem.vue'
-import { AgregarPaquete } from '@/Apis/api'
+import { mostrarServicios } from '@/Apis/api'
+import ServiciosItem from '@/components/componenteServicios/ServiciosItem.vue'
+import { AgregarServicio } from '@/Apis/api'
 
 const store = useStore()
 
-const paquetes = ref([])
-const isGerente = computed(() => {
-  const role = store.getters.userRole
-  console.log('Es gerente', role === 'Gerente')
-  return role === 'Gerente'
-})
-
-// Referencias a los campos del formulario
+const servicios = ref([])
+const isGerente = computed(() => store.getters.userRole === 'Gerente')
 const nombre = ref('')
 const descripcion = ref('')
 const precio = ref('')
+const minimo = ref('')
 
-// Función para agregar paquete
-const AgregarPaquetes = async () => {
-  if (!nombre.value || !descripcion.value || !precio.value) {
-    alert('Por favor, complete todos los campos.')
+const AgregarServicios = async () => {
+  if (!nombre.value || !descripcion.value || !precio.value || !minimo.value) {
+    alert('por favor llenar los campos')
     return
   }
-
   try {
     const token = store.getters.token
     const data = {
       nombre: nombre.value,
       descripcion: descripcion.value,
-      precio: precio.value
+      precio: precio.value,
+      minimo: minimo.value
     }
-
-    const nuevoPaquete = await AgregarPaquete(data, token)
-
-    if (nuevoPaquete) {
-      paquetes.value.push(nuevoPaquete) // Agrega el paquete a la lista
-      console.log('Nuevo paquete agregado:', nuevoPaquete)
-
-      // Limpia los campos del formulario
-      nombre.value = ''
-      descripcion.value = ''
-      precio.value = ''
+    const nuevoServicio = await AgregarServicio(data, token)
+    if (nuevoServicio) {
+      servicios.value.push(nuevoServicio)
+      console.log('Paquete Agregado', nuevoServicio)
+      ;(nombre.value = ''), (descripcion.value = ''), (precio.value = ''), (minimo.value = '')
     }
   } catch (error) {
-    console.error('Error al agregar paquete:', error)
+    console.error('Error al agregar servicio:', error)
   }
 }
-
-const cargarPaquetes = async () => {
+const eliminarServicio = (idServicio) => {
+  // Filtrar el servicio en el arreglo del componente padre
+  servicios.value = servicios.value.filter((servicio) => servicio.id !== idServicio)
+}
+const cargarServicios = async () => {
   try {
-    const data = await mostrarPaquetes()
-    paquetes.value = data
-    console.log('Paquetes cargados:', paquetes.value)
+    const data = await mostrarServicios()
+    servicios.value = data
   } catch (error) {
-    console.error('Error al cargar los paquetes:', error)
+    console.error('Error al cargar los servicios:', error)
   }
 }
 
 onMounted(() => {
-  cargarPaquetes()
+  cargarServicios()
 })
 </script>
 
@@ -97,7 +93,7 @@ onMounted(() => {
 .navbar {
   background-color: #2c3e50; /* Color de fondo más atractivo */
   color: white;
-  padding: 20px 30px; /* Mejora el espaciado */
+  padding: 20px 300px; /* Mejora el espaciado */
   text-align: left; /* Alinear texto a la izquierda */
   font-size: 24px; /* Tamaño de fuente más manejable */
   font-weight: bold; /* Mantener el texto en negrita */
@@ -124,7 +120,7 @@ onMounted(() => {
 }
 
 /* Contenedor de paquetes */
-.paquetes-container {
+.servicios-container {
   padding: 20px;
   text-align: center;
   width: 600%; /* Ajusta el ancho según sea necesario */
@@ -135,8 +131,7 @@ onMounted(() => {
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); /* Sombra sutil */
 }
 
-/* Estilo para cada paquete */
-.paquete-item {
+.servicio-item {
   background-color: white; /* Fondo blanco para los elementos de paquete */
   border: 1px solid #bdc3c7; /* Borde sutil */
   border-radius: 10px; /* Bordes redondeados */
@@ -146,7 +141,7 @@ onMounted(() => {
   transition: transform 0.2s; /* Efecto de transición */
 }
 
-.paquete-item:hover {
+.servicio-item:hover {
   transform: translateY(-5px); /* Levanta el elemento al pasar el mouse */
 }
 
@@ -172,7 +167,7 @@ button:hover {
   background-color: #27ae60; /* Color más oscuro al pasar el mouse */
 }
 
-.paquete-item {
+.servicio-item {
   border: 1px solid #595b15;
   padding: 20px;
   margin-bottom: 15px;
